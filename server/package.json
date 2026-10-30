@@ -1,0 +1,29 @@
+{
+  "name": "shopwise-server",
+  "version": "1.0.0",
+  "description": "ShopWise Backend API - Smart Multi-Store Product Aggregator, Price Tracker & Review Trust Engine",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/data/seeder.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "price-comparison",
+    "mern",
+    "ai-reviews",
+    "smart-value-score"
+  ],
+  "author": "ShopWise Engineering Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.7.2",
+    "morgan": "^1.10.0"
+  }
+}

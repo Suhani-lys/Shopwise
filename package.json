@@ -1,0 +1,14 @@
+{
+  "name": "shopwise-fullstack",
+  "version": "1.0.0",
+  "description": "ShopWise - Smart Shopping Platform for Informed and Trustworthy Decisions (MERN Stack Final Year Project)",
+  "scripts": {
+    "start": "node run-app.js",
+    "server": "cd server && npm start",
+    "client": "cd client && npm run dev",
+    "seed": "cd server && npm run seed"
+  },
+  "keywords": ["mern", "price-comparison", "ai-reviews", "smart-value-score"],
+  "author": "ShopWise Engineering",
+  "license": "MIT"
+}

@@ -1,0 +1,62 @@
+# ==============================================================================
+# ShopWise - Root .gitignore
+# Excludes dependencies, build artifacts, environment secrets, and runtime logs
+# ==============================================================================
+
+# Dependencies
+node_modules/
+*/node_modules/
+package-lock.json.bak
+
+# Production & Build Outputs
+dist/
+*/dist/
+build/
+*/build/
+dist-ssr/
+*.local
+
+# Environment Variables, Secrets & API Keys
+.env
+.env.*
+!.env.example
+*.env
+server/.env
+client/.env
+
+# Runtime Logs & Diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.pid
+*.seed
+*.pid.lock
+
+# Vite & Tooling Temporary Files
+vite.config.js.timestamp-*
+client/vite.config.js.timestamp-*
+*.mjs.map
+
+# Operating System & Editor Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+*.tmp
+
+# Temporary Test & Scratch Scripts
+scratch/
+test_*.js

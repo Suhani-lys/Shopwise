@@ -1,0 +1,1130 @@
+[
+  {
+    "id": "iphone-14-128gb",
+    "name": "Apple iPhone 14 (128 GB)",
+    "brand": "Apple",
+    "category": "Mobiles",
+    "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80",
+    "description": "Super Retina XDR display, advanced dual-camera system with Action mode & Photonic Engine, all-day battery life, and A15 Bionic chip.",
+    "specs": {
+      "display": "6.1-inch Super Retina XDR OLED",
+      "processor": "A15 Bionic chip (6-core CPU, 5-core GPU)",
+      "camera": "Dual 12MP Main + Ultra-Wide with Photonic Engine",
+      "battery": "Up to 20 hours video playback",
+      "storage": "128 GB NVMe",
+      "os": "iOS 17",
+      "weight": "172 grams"
+    },
+    "rating": 4.4,
+    "reviewCount": 12480,
+    "basePrice": 69900,
+    "lowestPrice": 49999,
+    "lowestStore": "Flipkart",
+    "offers": [
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 49999,
+        "mrp": 69900,
+        "discountPercent": 28,
+        "deliveryCharge": 40,
+        "totalCost": 50039,
+        "deliveryTime": "2 Days (Fast Dispatch)",
+        "bankOffer": "Extra ₹1,500 instant discount on Axis Bank & Flipkart Pay Later",
+        "seller": "SuperComNet (Flipkart Assured)",
+        "sellerRating": 4.7,
+        "inStock": true,
+        "url": "https://www.flipkart.com/apple-iphone-14-starlight-128-gb/p/itm"
+      },
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 52999,
+        "mrp": 69900,
+        "discountPercent": 24,
+        "deliveryCharge": 0,
+        "totalCost": 52999,
+        "deliveryTime": "Tomorrow by 11:00 AM (Prime)",
+        "bankOffer": "Flat ₹2,000 Instant Discount on HDFC Bank Credit Cards",
+        "seller": "Appario Retail (Authorized Apple Reseller)",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0BDK62PDX"
+      },
+      {
+        "store": "Croma",
+        "storeLogo": "croma",
+        "price": 53994,
+        "mrp": 69900,
+        "discountPercent": 23,
+        "deliveryCharge": 0,
+        "totalCost": 53994,
+        "deliveryTime": "Express Store Pickup or Free Home Delivery",
+        "bankOffer": "Flat ₹2,500 Cashback on ICICI Bank Credit Card EMI",
+        "seller": "Tata Croma Official",
+        "sellerRating": 4.9,
+        "inStock": true,
+        "url": "https://www.croma.com/apple-iphone-14-128gb/p"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 63999, "event": "Standard Retail" },
+      { "date": "2024-05-15", "price": 60999, "event": "Summer Bonanza" },
+      { "date": "2024-06-25", "price": 58999, "event": "Monsoon Festival" },
+      { "date": "2024-08-12", "price": 49999, "event": "Freedom Sale (All-Time Low)" },
+      { "date": "2024-09-18", "price": 54999, "event": "Pre-Diwali Price Correction" },
+      { "date": "2024-10-10", "price": 51999, "event": "Big Billion Days" },
+      { "date": "2024-10-29", "price": 49999, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -18.0,
+      "isGenuineDiscount": true,
+      "allTimeLow": 49999,
+      "allTimeHigh": 64999,
+      "averagePrice": 56999,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Genuine 18% Discount! The current price matches the recorded all-time low. Excellent window to purchase."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Super Retina XDR OLED display delivers vibrant colors and crisp contrast",
+        "Reliable battery endurance easily surviving 18+ hours on heavy screen time",
+        "Exceptional 4K Dolby Vision video recording with ultra-smooth Action mode stabilization",
+        "A15 Bionic chipset ensures fluid app performance and multi-year iOS updates"
+      ],
+      "negativePoints": [
+        "Display refresh rate is locked at standard 60Hz instead of 120Hz ProMotion",
+        "Retail packaging excludes power adapter; requires separate 20W USB-C charger",
+        "Lightning connector instead of universal USB-C (available only on 15 series)"
+      ],
+      "overallSentiment": {
+        "positive": 88,
+        "neutral": 8,
+        "negative": 4
+      },
+      "buyerVerdict": "Ideal for students, professionals, and creators seeking flagship Apple reliability, top-tier video capabilities, and long-lasting battery life without paying iPhone 15 Pro prices.",
+      "keyKeywords": ["Battery Life", "Cinema Camera", "Build Quality", "Fluid OS"]
+    },
+    "reviewTrustScore": {
+      "score": 94,
+      "grade": "Exceptional",
+      "verifiedPurchasePercentage": 92,
+      "suspiciousReviewCount": 14,
+      "totalReviewsAnalyzed: ": 2850,
+      "botPatternRisk": "Very Low",
+      "confidenceVerdict": "94% Trust Score. Analyzed 2,850 reviews across Amazon and Flipkart; highly consistent language patterns and verified buyer ratio."
+    },
+    "smartValueScore": {
+      "score": 92,
+      "rank": 1,
+      "tier": "Top Value Flagship",
+      "breakdown": {
+        "priceCompetitiveness": 95,
+        "ratingsAndSatisfaction": 89,
+        "reviewTrustConfidence": 94,
+        "hardwareSpecsPerRupee": 90
+      },
+      "explanation": "Ranked #1 in Premium Smartphones with a ₹19,901 discount from MRP, 94% Verified Trust, and lowest price at ₹49,999 on Flipkart."
+    }
+  },
+  {
+    "id": "samsung-galaxy-s23-5g",
+    "name": "Samsung Galaxy S23 5G (128 GB)",
+    "brand": "Samsung",
+    "category": "Mobiles",
+    "image": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80",
+    "description": "Dynamic AMOLED 2X 120Hz adaptive display, Snapdragon 8 Gen 2 for Galaxy, 50MP triple camera system with 30X Space Zoom, and Armor Aluminum frame.",
+    "specs": {
+      "display": "6.1-inch Dynamic AMOLED 2X, 120Hz Adaptive",
+      "processor": "Qualcomm Snapdragon 8 Gen 2 for Galaxy (4nm)",
+      "camera": "50MP Main (OIS) + 12MP Ultra-Wide + 10MP 3X Telephoto",
+      "battery": "3900 mAh with 25W Fast Charging",
+      "storage": "128 GB UFS 3.1",
+      "os": "One UI 6.1 (Android 14)",
+      "weight": "168 grams"
+    },
+    "rating": 4.3,
+    "reviewCount": 10420,
+    "basePrice": 74999,
+    "lowestPrice": 48999,
+    "lowestStore": "Amazon",
+    "offers": [
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 48999,
+        "mrp": 74999,
+        "discountPercent": 35,
+        "deliveryCharge": 0,
+        "totalCost": 48999,
+        "deliveryTime": "Tomorrow by 1:00 PM (Prime)",
+        "bankOffer": "Flat ₹2,500 Instant Discount on SBI Credit Cards",
+        "seller": "STPL Exclusive (Samsung Authorized)",
+        "sellerRating": 4.7,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0BT9CXXXX"
+      },
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 49999,
+        "mrp": 74999,
+        "discountPercent": 33,
+        "deliveryCharge": 40,
+        "totalCost": 50039,
+        "deliveryTime": "2-3 Days Delivery",
+        "bankOffer": "₹1,000 off on UPI transactions",
+        "seller": "RetailNet",
+        "sellerRating": 4.6,
+        "inStock": true,
+        "url": "https://www.flipkart.com/samsung-galaxy-s23-5g-phantom-black-128-gb/p/itm"
+      },
+      {
+        "store": "Reliance Digital",
+        "storeLogo": "reliance",
+        "price": 51999,
+        "mrp": 74999,
+        "discountPercent": 31,
+        "deliveryCharge": 0,
+        "totalCost": 51999,
+        "deliveryTime": "Next Day Delivery",
+        "bankOffer": "Flat 10% Cashback on Bank of Baroda Cards",
+        "seller": "Reliance Digital Retail",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.reliancedigital.in/samsung-s23"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 68999, "event": "Standard Listing" },
+      { "date": "2024-05-20", "price": 62999, "event": "Summer Fest" },
+      { "date": "2024-07-05", "price": 54999, "event": "Prime Day Special" },
+      { "date": "2024-08-15", "price": 51999, "event": "Independence Sale" },
+      { "date": "2024-09-20", "price": 52999, "event": "Price Rebound" },
+      { "date": "2024-10-12", "price": 49999, "event": "Festive Markdown" },
+      { "date": "2024-10-29", "price": 48999, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -16.5,
+      "isGenuineDiscount": true,
+      "allTimeLow": 48999,
+      "allTimeHigh": 69999,
+      "averagePrice": 56850,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Genuine 16.5% Price Cut! New all-time low on Amazon. ₹1,000 cheaper than Flipkart."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "120Hz Dynamic AMOLED 2X is mesmerizing with ultra-thin symmetrical bezels",
+        "Dedicated 3X optical telephoto lens captures unmatched sharp portraits",
+        "Snapdragon 8 Gen 2 provides blistering speed without thermal throttling",
+        "Compact ergonomic pocket-friendly form factor at just 168 grams"
+      ],
+      "negativePoints": [
+        "Battery capacity is 3900 mAh which requires midday top-up for extreme gaming",
+        "25W maximum charging speed is slower compared to OnePlus/Xiaomi 100W",
+        "No micro-SD slot or 3.5mm headphone jack"
+      ],
+      "overallSentiment": {
+        "positive": 85,
+        "neutral": 10,
+        "negative": 5
+      },
+      "buyerVerdict": "The absolute champion for compact Android flagship seekers who crave an elite 120Hz display, versatile 3X zoom camera, and sleek build.",
+      "keyKeywords": ["120Hz AMOLED", "3X Telephoto Zoom", "Snapdragon Power", "Compact Form"]
+    },
+    "reviewTrustScore": {
+      "score": 91,
+      "grade": "Very High",
+      "verifiedPurchasePercentage": 89,
+      "suspiciousReviewCount": 26,
+      "totalReviewsAnalyzed": 2150,
+      "botPatternRisk": "Low",
+      "confidenceVerdict": "91% Trust Score. Strong genuine buyer consensus with verified purchase badges across platforms."
+    },
+    "smartValueScore": {
+      "score": 94,
+      "rank": 2,
+      "tier": "Super Value Choice",
+      "breakdown": {
+        "priceCompetitiveness": 97,
+        "ratingsAndSatisfaction": 88,
+        "reviewTrustConfidence": 91,
+        "hardwareSpecsPerRupee": 98
+      },
+      "explanation": "Outscores competitors in Hardware Specs Per Rupee due to Snapdragon 8 Gen 2, 120Hz AMOLED, and dedicated optical telephoto zoom at ₹48,999."
+    }
+  },
+  {
+    "id": "sony-wh-1000xm5",
+    "name": "Sony WH-1000XM5 Wireless ANC Headphones",
+    "brand": "Sony",
+    "category": "Headphones",
+    "image": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
+    "description": "Industry-leading Active Noise Cancellation with two processors and 8 microphones, LDAC Hi-Res Audio, 30-hour battery life, and crystal-clear hands-free calling.",
+    "specs": {
+      "noiseCancellation": "Auto NC Optimizer with Integrated Processor V1 + HD QN1",
+      "drivers": "Specially engineered 30mm carbon-fiber dome drivers",
+      "battery": "Up to 30 hours (ANC On) / 40 hours (ANC Off)",
+      "connectivity": "Bluetooth 5.2, Multipoint, LDAC, AAC, SBC",
+      "charging": "USB-PD quick charge (3 mins = 3 hours playback)",
+      "weight": "250 grams"
+    },
+    "rating": 4.6,
+    "reviewCount": 8940,
+    "basePrice": 34990,
+    "lowestPrice": 24990,
+    "lowestStore": "Amazon",
+    "offers": [
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 24990,
+        "mrp": 34990,
+        "discountPercent": 29,
+        "deliveryCharge": 0,
+        "totalCost": 24990,
+        "deliveryTime": "Tomorrow by 2:00 PM (Prime)",
+        "bankOffer": "Flat ₹2,000 Instant Discount with All Bank Cards",
+        "seller": "Appario Retail Private Ltd",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B09XS7JWHH"
+      },
+      {
+        "store": "Croma",
+        "storeLogo": "croma",
+        "price": 26990,
+        "mrp": 34990,
+        "discountPercent": 23,
+        "deliveryCharge": 0,
+        "totalCost": 26990,
+        "deliveryTime": "Available for Store Pickup",
+        "bankOffer": "5% Extra Cashback on NeuCard",
+        "seller": "Tata Croma",
+        "sellerRating": 4.9,
+        "inStock": true,
+        "url": "https://www.croma.com/sony-wh-1000xm5"
+      },
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 27490,
+        "mrp": 34990,
+        "discountPercent": 21,
+        "deliveryCharge": 49,
+        "totalCost": 27539,
+        "deliveryTime": "3 Days Delivery",
+        "bankOffer": "10% off on HDFC Credit EMI",
+        "seller": "OmniTech Retail",
+        "sellerRating": 4.5,
+        "inStock": true,
+        "url": "https://www.flipkart.com/sony-wh-1000xm5"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 29990, "event": "Standard Price" },
+      { "date": "2024-06-10", "price": 28490, "event": "Audio Fest" },
+      { "date": "2024-07-22", "price": 26990, "event": "Prime Days" },
+      { "date": "2024-08-15", "price": 25990, "event": "Festive Prep" },
+      { "date": "2024-09-30", "price": 27990, "event": "Pre-Sale Markup" },
+      { "date": "2024-10-20", "price": 24990, "event": "Great Indian Sale" },
+      { "date": "2024-10-29", "price": 24990, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -9.8,
+      "isGenuineDiscount": true,
+      "allTimeLow": 23990,
+      "allTimeHigh": 32990,
+      "averagePrice": 27700,
+      "priceTrend": "Near All-Time Low",
+      "discountVerdict": "Genuine Deal! ₹2,000 cheaper than Croma and Flipkart. Amazon provides the lowest landed price."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Gold-standard noise cancellation silences train rumbles and busy office chatter effortlessly",
+        "Featherlight headband with soft-fit leather provides fatigue-free listening for 6+ hours",
+        "Multipoint pairing enables seamless switching between laptop Zoom calls and mobile phone",
+        "Superb microphone clarity with 4 beamforming mics isolating your voice from wind"
+      ],
+      "negativePoints": [
+        "Headband does not fold completely inward like the predecessor WH-1000XM4",
+        "Carry case is larger and takes up slightly more backpack space"
+      ],
+      "overallSentiment": {
+        "positive": 92,
+        "neutral": 6,
+        "negative": 2
+      },
+      "buyerVerdict": "Must-have recommendation for travelers, remote professionals, and audiophiles who prioritize unmatched noise cancellation and all-day comfort.",
+      "keyKeywords": ["Industry-Leading ANC", "Featherlight Comfort", "30-Hr Battery", "Crystal Calls"]
+    },
+    "reviewTrustScore": {
+      "score": 96,
+      "grade": "Pristine",
+      "verifiedPurchasePercentage": 95,
+      "suspiciousReviewCount": 8,
+      "totalReviewsAnalyzed": 1900,
+      "botPatternRisk": "Virtually Zero",
+      "confidenceVerdict": "96% Trust Score. Cleanest review distribution in consumer audio; verified acoustic measurements confirmed by buyers."
+    },
+    "smartValueScore": {
+      "score": 95,
+      "rank": 1,
+      "tier": "Category Champion",
+      "breakdown": {
+        "priceCompetitiveness": 93,
+        "ratingsAndSatisfaction": 96,
+        "reviewTrustConfidence": 96,
+        "hardwareSpecsPerRupee": 94
+      },
+      "explanation": "Highest overall rating in audio equipment with 96% Trust Score and best-in-class ANC performance."
+    }
+  },
+  {
+    "id": "macbook-air-m2",
+    "name": "Apple MacBook Air M2 (8GB RAM, 256GB SSD)",
+    "brand": "Apple",
+    "category": "Laptops",
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+    "description": "Redesigned ultrathin chassis with 13.6-inch Liquid Retina display, Apple M2 silicon chip, 1080p FaceTime HD camera, MagSafe 3 charging, and 18-hour battery.",
+    "specs": {
+      "display": "13.6-inch Liquid Retina (2560 x 1664) with True Tone",
+      "processor": "Apple M2 chip (8-core CPU, 8-core GPU, 16-core Neural Engine)",
+      "memory": "8GB Unified Memory",
+      "storage": "256GB High-Speed SSD",
+      "battery": "Up to 18 hours battery life, MagSafe 3 Fast Charging",
+      "ports": "2x Thunderbolt / USB 4, 3.5mm headphone jack with high-impedance support",
+      "weight": "1.24 kg"
+    },
+    "rating": 4.7,
+    "reviewCount": 6820,
+    "basePrice": 99900,
+    "lowestPrice": 78990,
+    "lowestStore": "Flipkart",
+    "offers": [
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 78990,
+        "mrp": 99900,
+        "discountPercent": 21,
+        "deliveryCharge": 0,
+        "totalCost": 78990,
+        "deliveryTime": "2 Days Delivery",
+        "bankOffer": "Extra ₹2,500 off on HDFC & SBI Credit Cards",
+        "seller": "IndiFlashMart (Flipkart Assured)",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.flipkart.com/apple-macbook-air-m2"
+      },
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 81990,
+        "mrp": 99900,
+        "discountPercent": 18,
+        "deliveryCharge": 0,
+        "totalCost": 81990,
+        "deliveryTime": "Tomorrow by 11:00 AM (Prime)",
+        "bankOffer": "Flat ₹2,000 Instant Discount on ICICI Bank Cards",
+        "seller": "Appario Retail Private Ltd",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0B3C9B8"
+      },
+      {
+        "store": "Reliance Digital",
+        "storeLogo": "reliance",
+        "price": 82900,
+        "mrp": 99900,
+        "discountPercent": 17,
+        "deliveryCharge": 0,
+        "totalCost": 82900,
+        "deliveryTime": "Express Delivery",
+        "bankOffer": "Flat 5% Instant Cashback on American Express",
+        "seller": "Reliance Digital Official",
+        "sellerRating": 4.7,
+        "inStock": true,
+        "url": "https://www.reliancedigital.in/apple-macbook-air-m2"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 94900, "event": "Standard MRP" },
+      { "date": "2024-06-15", "price": 89990, "event": "Back to College" },
+      { "date": "2024-07-28", "price": 84990, "event": "Independence Sale" },
+      { "date": "2024-08-30", "price": 86990, "event": "Pre-Season Price" },
+      { "date": "2024-10-08", "price": 79990, "event": "Festive Blowout" },
+      { "date": "2024-10-29", "price": 78990, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -11.2,
+      "isGenuineDiscount": true,
+      "allTimeLow": 77990,
+      "allTimeHigh": 96900,
+      "averagePrice": 88950,
+      "priceTrend": "Near All-Time Low",
+      "discountVerdict": "Genuine Savings of ₹20,910 from MRP! Flipkart beats Amazon by ₹3,000 on this model."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Unbelievable 16-18 hour real-world battery endurance on a single morning charge",
+        "Silent fanless operation; runs cool even during intensive code compilations",
+        "Gorgeous 500 nits Liquid Retina display with crisp typography and vibrant P3 wide color",
+        "Class-leading trackpad and keyboard typing acoustics"
+      ],
+      "negativePoints": [
+        "Base 8GB RAM is not user-upgradable after purchase",
+        "Single external display support limit natively on M2"
+      ],
+      "overallSentiment": {
+        "positive": 94,
+        "neutral": 4,
+        "negative": 2
+      },
+      "buyerVerdict": "The benchmark laptop for university students, software engineers, and writers who need supreme battery longevity and featherweight portability.",
+      "keyKeywords": ["18-Hr Battery", "Silent Fanless", "Liquid Retina", "M2 Power"]
+    },
+    "reviewTrustScore": {
+      "score": 97,
+      "grade": "Pristine",
+      "verifiedPurchasePercentage": 96,
+      "suspiciousReviewCount": 6,
+      "totalReviewsAnalyzed": 1580,
+      "botPatternRisk": "Negligible",
+      "confidenceVerdict": "97% Trust Score. Highest recorded trust index in computer hardware."
+    },
+    "smartValueScore": {
+      "score": 96,
+      "rank": 1,
+      "tier": "Editor's Choice",
+      "breakdown": {
+        "priceCompetitiveness": 94,
+        "ratingsAndSatisfaction": 98,
+        "reviewTrustConfidence": 97,
+        "hardwareSpecsPerRupee": 95
+      },
+      "explanation": "Scored 96/100 due to exceptional student and developer satisfaction, class-leading battery life, and ₹20,910 off retail."
+    }
+  },
+  {
+    "id": "asus-rog-zephyrus-g14",
+    "name": "ASUS ROG Zephyrus G14 (Ryzen 9, RTX 4060, 16GB)",
+    "brand": "ASUS",
+    "category": "Laptops",
+    "image": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80",
+    "description": "Ultraportable 14-inch OLED ROG Nebula display (120Hz/0.2ms), AMD Ryzen 9 8945HS with AI Engine, NVIDIA GeForce RTX 4060 8GB GDDR6, CNC Aluminum unibody.",
+    "specs": {
+      "display": "14-inch 3K (2880 x 1800) OLED 120Hz 0.2ms G-Sync",
+      "processor": "AMD Ryzen 9 8945HS (8 Cores, 16 Threads, up to 5.2GHz) with Ryzen AI",
+      "graphics": "NVIDIA GeForce RTX 4060 8GB GDDR6 (90W TGP)",
+      "memory": "16GB LPDDR5X-6400MHz",
+      "storage": "1TB PCIe 4.0 NVMe M.2 SSD",
+      "battery": "73Wh battery with 100W Type-C charging support",
+      "weight": "1.50 kg"
+    },
+    "rating": 4.5,
+    "reviewCount": 3210,
+    "basePrice": 174990,
+    "lowestPrice": 149990,
+    "lowestStore": "Amazon",
+    "offers": [
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 149990,
+        "mrp": 174990,
+        "discountPercent": 14,
+        "deliveryCharge": 0,
+        "totalCost": 149990,
+        "deliveryTime": "Tomorrow by 3:00 PM (Prime)",
+        "bankOffer": "Flat ₹4,000 Instant Discount on HDFC Credit Cards",
+        "seller": "Appario Retail",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0D5B5ROG"
+      },
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 154990,
+        "mrp": 174990,
+        "discountPercent": 11,
+        "deliveryCharge": 0,
+        "totalCost": 154990,
+        "deliveryTime": "3 Days Delivery",
+        "bankOffer": "₹2,000 off on Axis Bank",
+        "seller": "SVPeripherals",
+        "sellerRating": 4.6,
+        "inStock": true,
+        "url": "https://www.flipkart.com/asus-rog-g14"
+      },
+      {
+        "store": "Croma",
+        "storeLogo": "croma",
+        "price": 156990,
+        "mrp": 174990,
+        "discountPercent": 10,
+        "deliveryCharge": 0,
+        "totalCost": 156990,
+        "deliveryTime": "Same Day Pickup",
+        "bankOffer": "Complimentary ROG Gaming Backpack included",
+        "seller": "Tata Croma",
+        "sellerRating": 4.9,
+        "inStock": true,
+        "url": "https://www.croma.com/rog-zephyrus-g14"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-05-01", "price": 169990, "event": "Launch Price" },
+      { "date": "2024-07-15", "price": 162990, "event": "Summer Sale" },
+      { "date": "2024-08-25", "price": 158990, "event": "Tech Week" },
+      { "date": "2024-10-15", "price": 149990, "event": "Festive Gaming Bonanza" },
+      { "date": "2024-10-29", "price": 149990, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -7.3,
+      "isGenuineDiscount": true,
+      "allTimeLow": 149990,
+      "allTimeHigh": 174990,
+      "averagePrice": 161800,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Genuine deal saving ₹25,000 off retail. Lowest price available on Amazon."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "3K 120Hz OLED screen is widely acclaimed as the best laptop display on the market",
+        "Insanely portable 1.5kg chassis packed with RTX 4060 graphics horsepower",
+        "Exceptional 6-speaker acoustic system with punchy bass",
+        "Whisper-quiet thermals during light work and productive battery life for an x86 laptop"
+      ],
+      "negativePoints": [
+        "Soldered RAM cannot be upgraded after purchase",
+        "Surface temperature gets hot under sustained 90W gaming loads"
+      ],
+      "overallSentiment": {
+        "positive": 89,
+        "neutral": 8,
+        "negative": 3
+      },
+      "buyerVerdict": "The holy grail for gaming enthusiasts, 3D animators, and software architects who demand supreme portability with real ray-tracing capability.",
+      "keyKeywords": ["3K OLED 120Hz", "RTX 4060", "Ryzen 9 AI", "1.5kg Thin"]
+    },
+    "reviewTrustScore": {
+      "score": 93,
+      "grade": "Exceptional",
+      "verifiedPurchasePercentage": 91,
+      "suspiciousReviewCount": 11,
+      "totalReviewsAnalyzed": 860,
+      "botPatternRisk": "Low",
+      "confidenceVerdict": "93% Trust Score. Verified technical benchmarks submitted by developers and gamers."
+    },
+    "smartValueScore": {
+      "score": 90,
+      "rank": 2,
+      "tier": "Premium Powerhouse",
+      "breakdown": {
+        "priceCompetitiveness": 88,
+        "ratingsAndSatisfaction": 94,
+        "reviewTrustConfidence": 93,
+        "hardwareSpecsPerRupee": 92
+      },
+      "explanation": "Phenomenal display and build quality; premium price compensated by elite AMD Ryzen 9 + OLED combo."
+    }
+  },
+  {
+    "id": "apple-watch-series-9",
+    "name": "Apple Watch Series 9 GPS 45mm",
+    "brand": "Apple",
+    "category": "Smart Watches",
+    "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=800&q=80",
+    "description": "Powerful S9 SiP with Double Tap gesture, brighter 2000-nit Always-On Retina display, on-device Siri, ECG, Blood Oxygen, and crash detection.",
+    "specs": {
+      "display": "45mm Always-On Retina OLED, up to 2000 nits brightness",
+      "processor": "S9 SiP with 64-bit dual-core processor & 4-core Neural Engine",
+      "sensors": "Electrical heart sensor (ECG), Third-gen optical heart sensor, Blood Oxygen, Temperature sensing",
+      "battery": "Up to 18 hours normal / 36 hours in Low Power Mode",
+      "waterResistance": "Water resistant 50 meters (Swimproof) / IP6X dust resistant",
+      "weight": "38.7 grams"
+    },
+    "rating": 4.6,
+    "reviewCount": 4920,
+    "basePrice": 44900,
+    "lowestPrice": 36999,
+    "lowestStore": "Flipkart",
+    "offers": [
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 36999,
+        "mrp": 44900,
+        "discountPercent": 18,
+        "deliveryCharge": 0,
+        "totalCost": 36999,
+        "deliveryTime": "2 Days Delivery",
+        "bankOffer": "Extra ₹1,500 off on HDFC Cards",
+        "seller": "IndiFlashMart",
+        "sellerRating": 4.7,
+        "inStock": true,
+        "url": "https://www.flipkart.com/apple-watch-series-9"
+      },
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 38990,
+        "mrp": 44900,
+        "discountPercent": 13,
+        "deliveryCharge": 0,
+        "totalCost": 38990,
+        "deliveryTime": "Tomorrow by 11:00 AM (Prime)",
+        "bankOffer": "Flat ₹1,500 Instant Discount on SBI Cards",
+        "seller": "Appario Retail",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0CHX5SERIES9"
+      },
+      {
+        "store": "Croma",
+        "storeLogo": "croma",
+        "price": 41900,
+        "mrp": 44900,
+        "discountPercent": 7,
+        "deliveryCharge": 0,
+        "totalCost": 41900,
+        "deliveryTime": "Available for In-Store Pickup",
+        "bankOffer": "Flat ₹2,000 Cashback on Tata Neu",
+        "seller": "Tata Croma",
+        "sellerRating": 4.9,
+        "inStock": true,
+        "url": "https://www.croma.com/apple-watch-series-9"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 44900, "event": "Retail Launch" },
+      { "date": "2024-06-20", "price": 41999, "event": "Summer Discount" },
+      { "date": "2024-08-15", "price": 39999, "event": "Independence Sale" },
+      { "date": "2024-10-10", "price": 36999, "event": "BBD Special" },
+      { "date": "2024-10-29", "price": 36999, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -10.4,
+      "isGenuineDiscount": true,
+      "allTimeLow": 36999,
+      "allTimeHigh": 44900,
+      "averagePrice": 41300,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Genuine deal! ₹7,901 below MRP. Flipkart provides the lowest price."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Magical Double Tap gesture makes answering calls effortless when your other hand is full",
+        "Blinding 2000-nit screen makes reading notifications under direct harsh sunlight crystal clear",
+        "Clinical-grade heart rate accuracy and sleep staging analysis",
+        "Seamless synchronization with iPhone ecosystem and fitness rings"
+      ],
+      "negativePoints": [
+        "18-hour battery requires daily charging routine before bed or during morning shower",
+        "Only compatible with Apple iPhone (no Android pairing)"
+      ],
+      "overallSentiment": {
+        "positive": 91,
+        "neutral": 6,
+        "negative": 3
+      },
+      "buyerVerdict": "The unmatched health and productivity smartwatch for any iPhone user.",
+      "keyKeywords": ["Double Tap", "2000 Nits", "ECG Health", "Sleek Aluminum"]
+    },
+    "reviewTrustScore": {
+      "score": 95,
+      "grade": "Pristine",
+      "verifiedPurchasePercentage": 93,
+      "suspiciousReviewCount": 9,
+      "totalReviewsAnalyzed": 1420,
+      "botPatternRisk": "Negligible",
+      "confidenceVerdict": "95% Trust Score. Verified health enthusiast reviews confirm medical sensor accuracy."
+    },
+    "smartValueScore": {
+      "score": 91,
+      "rank": 1,
+      "tier": "Smartwatch Gold Standard",
+      "breakdown": {
+        "priceCompetitiveness": 90,
+        "ratingsAndSatisfaction": 95,
+        "reviewTrustConfidence": 95,
+        "hardwareSpecsPerRupee": 89
+      },
+      "explanation": "Ranked #1 Smartwatch with ₹7,901 discount, pristine sensor accuracy, and 95% Trust Score."
+    }
+  },
+  {
+    "id": "samsung-galaxy-watch-6",
+    "name": "Samsung Galaxy Watch 6 (44mm Bluetooth)",
+    "brand": "Samsung",
+    "category": "Smart Watches",
+    "image": "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80",
+    "description": "Super AMOLED display with slimmed bezel, advanced sleep coaching, BIA Body Composition sensor, Blood Pressure & ECG monitoring, Wear OS powered by Samsung.",
+    "specs": {
+      "display": "1.5-inch Super AMOLED (480 x 480) Sapphire Crystal",
+      "processor": "Exynos W930 Dual Core 1.4GHz (5nm)",
+      "sensors": "Samsung BioActive Sensor (Optical Heart Rate + Electrical Heart + Bioelectrical Impedance Analysis)",
+      "battery": "425 mAh with Fast Wireless Charging (up to 40 hours)",
+      "durability": "5ATM + IP68 / MIL-STD-810H Military Standard",
+      "weight": "33.3 grams"
+    },
+    "rating": 4.3,
+    "reviewCount": 3810,
+    "basePrice": 33999,
+    "lowestPrice": 19999,
+    "lowestStore": "Amazon",
+    "offers": [
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 19999,
+        "mrp": 33999,
+        "discountPercent": 41,
+        "deliveryCharge": 0,
+        "totalCost": 19999,
+        "deliveryTime": "Tomorrow by 11:00 AM",
+        "bankOffer": "Extra ₹1,500 Instant Discount on ICICI Bank Cards",
+        "seller": "ElectronicsMart",
+        "sellerRating": 4.6,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0CCG6WATCH6"
+      },
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 21499,
+        "mrp": 33999,
+        "discountPercent": 37,
+        "deliveryCharge": 0,
+        "totalCost": 21499,
+        "deliveryTime": "2 Days Delivery",
+        "bankOffer": "Special price discount applied",
+        "seller": "RetailNet",
+        "sellerRating": 4.7,
+        "inStock": true,
+        "url": "https://www.flipkart.com/samsung-galaxy-watch-6"
+      },
+      {
+        "store": "Reliance Digital",
+        "storeLogo": "reliance",
+        "price": 22999,
+        "mrp": 33999,
+        "discountPercent": 32,
+        "deliveryCharge": 0,
+        "totalCost": 22999,
+        "deliveryTime": "Express Home Delivery",
+        "bankOffer": "Flat 10% Cashback on Bank of Baroda",
+        "seller": "Reliance Retail",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.reliancedigital.in/samsung-watch-6"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 29999, "event": "Standard Listing" },
+      { "date": "2024-06-15", "price": 26999, "event": "Mid-Year Sale" },
+      { "date": "2024-08-10", "price": 23999, "event": "Freedom Offer" },
+      { "date": "2024-10-05", "price": 19999, "event": "Festival Markdown" },
+      { "date": "2024-10-29", "price": 19999, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -20.6,
+      "isGenuineDiscount": true,
+      "allTimeLow": 19999,
+      "allTimeHigh": 31999,
+      "averagePrice": 25200,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Massive 41% Price Drop! Amazon price of ₹19,999 represents unbeatable value for a full WearOS watch."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Stunning edge-to-edge Sapphire crystal AMOLED display with super-slim borders",
+        "Wear OS 4 with full Google Play Store, Google Maps, and WhatsApp wrist replies",
+        "Comprehensive body fat percentage, skeletal muscle, and ECG readings",
+        "Fast wireless magnetic charging tops up 50% in 30 minutes"
+      ],
+      "negativePoints": [
+        "Certain advanced ECG and blood pressure features require a paired Samsung Galaxy smartphone",
+        "Battery life averages 1.5 days; needs charging every second night"
+      ],
+      "overallSentiment": {
+        "positive": 87,
+        "neutral": 9,
+        "negative": 4
+      },
+      "buyerVerdict": "The top-tier Wear OS smartwatch recommendation for Android and Samsung smartphone owners.",
+      "keyKeywords": ["Wear OS 4", "BIA Body Comp", "Sapphire AMOLED", "41% Off"]
+    },
+    "reviewTrustScore": {
+      "score": 92,
+      "grade": "Exceptional",
+      "verifiedPurchasePercentage": 89,
+      "suspiciousReviewCount": 18,
+      "totalReviewsAnalyzed": 1150,
+      "botPatternRisk": "Low",
+      "confidenceVerdict": "92% Trust Score. Verified buyer logs corroborate accurate sleep and fitness metrics."
+    },
+    "smartValueScore": {
+      "score": 94,
+      "rank": 2,
+      "tier": "Outstanding Value",
+      "breakdown": {
+        "priceCompetitiveness": 98,
+        "ratingsAndSatisfaction": 90,
+        "reviewTrustConfidence": 92,
+        "hardwareSpecsPerRupee": 97
+      },
+      "explanation": "Unbeatable 41% discount from MRP elevates this to the highest value-per-rupee smartwatch."
+    }
+  },
+  {
+    "id": "lg-c3-55-inch-oled-tv",
+    "name": "LG C3 55-inch 4K OLED evo Smart TV",
+    "brand": "LG",
+    "category": "Home",
+    "image": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80",
+    "description": "Self-lit OLED evo with Brightness Booster, α9 AI Processor Gen6, 4x HDMI 2.1 (4K 120Hz, VRR, G-Sync, FreeSync), Dolby Vision & Atmos, and webOS 23.",
+    "specs": {
+      "display": "55-inch 4K UHD (3840 x 2160) Self-Lit OLED evo Panel, Infinite Contrast",
+      "processor": "α9 AI Processor 4K Gen6 with AI Super Upscaling",
+      "gaming": "4x HDMI 2.1 ports (4K @ 120Hz, 0.1ms response time, VRR, ALLM, AMD FreeSync Premium, NVIDIA G-Sync)",
+      "audio": "40W 2.2 Channel with Dolby Atmos and AI Sound Pro (Virtual 9.1.2 upmix)",
+      "smartPlatform": "webOS 23 with ThinQ AI, Apple AirPlay 2, and HomeKit",
+      "weight": "16.0 kg with stand"
+    },
+    "rating": 4.8,
+    "reviewCount": 2180,
+    "basePrice": 169990,
+    "lowestPrice": 114990,
+    "lowestStore": "Amazon",
+    "offers": [
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 114990,
+        "mrp": 169990,
+        "discountPercent": 32,
+        "deliveryCharge": 0,
+        "totalCost": 114990,
+        "deliveryTime": "Free Scheduled Delivery & Free Wall Mount Installation",
+        "bankOffer": "Flat ₹5,000 Instant Discount on All Credit Cards",
+        "seller": "Cloudtail Electronics Authorized",
+        "sellerRating": 4.9,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0C3LGC355"
+      },
+      {
+        "store": "Croma",
+        "storeLogo": "croma",
+        "price": 119990,
+        "mrp": 169990,
+        "discountPercent": 29,
+        "deliveryCharge": 0,
+        "totalCost": 119990,
+        "deliveryTime": "Same Day Delivery & Free Brand Installation",
+        "bankOffer": "Flat ₹4,000 Cashback on HDFC Bank",
+        "seller": "Tata Croma Official",
+        "sellerRating": 4.9,
+        "inStock": true,
+        "url": "https://www.croma.com/lg-c3-55-oled"
+      },
+      {
+        "store": "Reliance Digital",
+        "storeLogo": "reliance",
+        "price": 121990,
+        "mrp": 169990,
+        "discountPercent": 28,
+        "deliveryCharge": 0,
+        "totalCost": 121990,
+        "deliveryTime": "Free Scheduled Delivery",
+        "bankOffer": "10% Cashback on select debit cards",
+        "seller": "Reliance Digital",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.reliancedigital.in/lg-c3-oled"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 139990, "event": "Summer Special" },
+      { "date": "2024-06-15", "price": 129990, "event": "World Cup Bonanza" },
+      { "date": "2024-08-15", "price": 124990, "event": "Independence Sale" },
+      { "date": "2024-10-15", "price": 114990, "event": "Diwali Blockbuster" },
+      { "date": "2024-10-29", "price": 114990, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -12.8,
+      "isGenuineDiscount": true,
+      "allTimeLow": 114990,
+      "allTimeHigh": 149990,
+      "averagePrice": 131800,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Genuine ₹55,000 discount from MRP. Best price verified on Amazon with free installation included."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Inky infinite black levels and zero backlight bleed create breathtaking movie night immersion",
+        "Full 4x HDMI 2.1 bandwidth with 4K 120Hz and 0.1ms response makes it the undisputed king of PS5 and PC gaming",
+        "α9 AI Gen6 processor handles SDR-to-HDR upscaling with exceptional sharpness",
+        "Razor-thin panel aesthetic elevates living room decor"
+      ],
+      "negativePoints": [
+        "Built-in speakers are decent but a dedicated Dolby Atmos soundbar is recommended for theater punch",
+        "OLED panels are reflective in rooms with bright uncurtained windows"
+      ],
+      "overallSentiment": {
+        "positive": 96,
+        "neutral": 3,
+        "negative": 1
+      },
+      "buyerVerdict": "The benchmark reference OLED television for cinephiles, home theater connoisseurs, and hardcore console gamers.",
+      "keyKeywords": ["Perfect Blacks", "4K 120Hz Gaming", "Dolby Vision", "α9 AI Gen6"]
+    },
+    "reviewTrustScore": {
+      "score": 98,
+      "grade": "Pristine",
+      "verifiedPurchasePercentage": 97,
+      "suspiciousReviewCount": 4,
+      "totalReviewsAnalyzed": 1120,
+      "botPatternRisk": "Negligible",
+      "confidenceVerdict": "98% Trust Score. Pristine verified buyer feedback from verified home theater owners."
+    },
+    "smartValueScore": {
+      "score": 97,
+      "rank": 1,
+      "tier": "Masterpiece Value",
+      "breakdown": {
+        "priceCompetitiveness": 96,
+        "ratingsAndSatisfaction": 99,
+        "reviewTrustConfidence": 98,
+        "hardwareSpecsPerRupee": 95
+      },
+      "explanation": "Highest satisfaction score in the entire catalog. Incredible ₹55,000 price drop makes OLED affordable."
+    }
+  },
+  {
+    "id": "nike-air-jordan-1-low",
+    "name": "Nike Air Jordan 1 Low 'Lavender Breeze'",
+    "brand": "Nike",
+    "category": "Fashion",
+    "image": "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=80",
+    "description": "Iconic basketball silhouette inspired by the 1985 original, featuring genuine pastel lavender leather overlays, encapsulated Nike Air-Sole cushioning, and durable rubber cupsole.",
+    "specs": {
+      "material": "Genuine leather and synthetic upper in premium pastel lavender & crisp white",
+      "cushioning": "Encapsulated Air-Sole unit in heel for lightweight shock absorption",
+      "outsole": "Solid rubber outsole with deep flex grooves and circular pivot circle",
+      "closure": "Lace-up with stitched Wings logo on heel",
+      "style": "Low-cut profile for comfortable everyday street fashion"
+    },
+    "rating": 4.6,
+    "reviewCount": 4120,
+    "basePrice": 9995,
+    "lowestPrice": 7495,
+    "lowestStore": "Myntra",
+    "offers": [
+      {
+        "store": "Myntra",
+        "storeLogo": "myntra",
+        "price": 7495,
+        "mrp": 9995,
+        "discountPercent": 25,
+        "deliveryCharge": 0,
+        "totalCost": 7495,
+        "deliveryTime": "2 Days Delivery (Myntra Insider Express)",
+        "bankOffer": "Flat 10% off with Myntra Kotak Credit Card",
+        "seller": "Nike India Official Partner",
+        "sellerRating": 4.8,
+        "inStock": true,
+        "url": "https://www.myntra.com/nike-air-jordan-1-low"
+      },
+      {
+        "store": "Flipkart",
+        "storeLogo": "flipkart",
+        "price": 7995,
+        "mrp": 9995,
+        "discountPercent": 20,
+        "deliveryCharge": 40,
+        "totalCost": 8035,
+        "deliveryTime": "3 Days Delivery",
+        "bankOffer": "5% Unlimited Cashback on Flipkart Axis Bank",
+        "seller": "SneakerVault Assured",
+        "sellerRating": 4.6,
+        "inStock": true,
+        "url": "https://www.flipkart.com/nike-air-jordan-1-low"
+      },
+      {
+        "store": "Amazon",
+        "storeLogo": "amazon",
+        "price": 8495,
+        "mrp": 9995,
+        "discountPercent": 15,
+        "deliveryCharge": 0,
+        "totalCost": 8495,
+        "deliveryTime": "Tomorrow by 5:00 PM",
+        "bankOffer": "Standard Card Offer",
+        "seller": "Official Footwear Hub",
+        "sellerRating": 4.5,
+        "inStock": true,
+        "url": "https://www.amazon.in/dp/B0JORDAN1LOW"
+      }
+    ],
+    "priceHistory": [
+      { "date": "2024-04-01", "price": 9995, "event": "Retail Launch" },
+      { "date": "2024-06-20", "price": 8995, "event": "Mid-Season Sale" },
+      { "date": "2024-08-15", "price": 8295, "event": "Freedom Fest" },
+      { "date": "2024-10-10", "price": 7495, "event": "End of Reason Sale" },
+      { "date": "2024-10-29", "price": 7495, "event": "Current Best Offer" }
+    ],
+    "priceAnalysis": {
+      "currentVsAveragePercent": -15.2,
+      "isGenuineDiscount": true,
+      "allTimeLow": 7495,
+      "allTimeHigh": 9995,
+      "averagePrice": 8840,
+      "priceTrend": "All-Time Low",
+      "discountVerdict": "Genuine 25% Discount! Myntra provides verified authentic stock at the lowest price."
+    },
+    "aiReviewSummary": {
+      "positivePoints": [
+        "Lavender colour blocking is aesthetically stunning and receives tons of compliments",
+        "Premium full-grain leather softens up comfortably after the first two wears",
+        "Classic versatile look pairs effortlessly with denim, joggers, and casual shorts",
+        "Encapsulated Air unit delivers reliable everyday walking comfort"
+      ],
+      "negativePoints": [
+        "Runs slightly narrow; wide-footed buyers should order half a size up",
+        "Toebox will crease over time (crease protectors recommended for sneakerheads)"
+      ],
+      "overallSentiment": {
+        "positive": 90,
+        "neutral": 7,
+        "negative": 3
+      },
+      "buyerVerdict": "The perfect streetwear sneaker upgrade with trendy pastel lavender aesthetic and timeless heritage.",
+      "keyKeywords": ["Lavender Aesthetic", "Jordan Heritage", "Air Cushion", "Premium Leather"]
+    },
+    "reviewTrustScore": {
+      "score": 93,
+      "grade": "Exceptional",
+      "verifiedPurchasePercentage": 92,
+      "suspiciousReviewCount": 16,
+      "totalReviewsAnalyzed": 2400,
+      "botPatternRisk": "Low",
+      "confidenceVerdict": "93% Trust Score. Verified shoe collectors confirm genuine Nike manufacturing badges."
+    },
+    "smartValueScore": {
+      "score": 92,
+      "rank": 1,
+      "tier": "Fashion Top Pick",
+      "breakdown": {
+        "priceCompetitiveness": 93,
+        "ratingsAndSatisfaction": 92,
+        "reviewTrustConfidence": 93,
+        "hardwareSpecsPerRupee": 90
+      },
+      "explanation": "Rare discount on official Jordan line with verified authenticity through Myntra."
+    }
+  }
+]
