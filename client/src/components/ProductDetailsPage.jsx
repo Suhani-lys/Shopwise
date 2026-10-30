@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useShopwise } from '../context/ShopwiseContext';
+import { API_BASE_URL } from '../config/api';
 import { 
   ChevronRight, 
   Star, 
@@ -85,7 +86,7 @@ export default function ProductDetailsPage() {
     }
 
     // Fetch enriched product from backend API
-    fetch(`http://localhost:5000/api/products/${selectedProductId}`)
+    fetch(`${API_BASE_URL}/products/${selectedProductId}`)
       .then(res => {
         if (res.ok) return res.json();
         throw new Error('Product not found');
@@ -158,25 +159,45 @@ export default function ProductDetailsPage() {
     return subset;
   }, [product, historyRange]);
 
-  // Calculate history stats
+  // Calculate history stats based strictly on verified historical observations
   const historyStats = useMemo(() => {
-    if (filteredHistory.length === 0) return null;
+    if (!filteredHistory || filteredHistory.length < 3) {
+      return {
+        hasSufficientHistory: false,
+        current: Number(product?.lowestPrice || 0),
+        avg: null,
+        lowest: null,
+        isGenuine: false,
+        diffPercent: 0,
+        observationCount: filteredHistory?.length || 0,
+        verdict: 'Insufficient price history (minimum 3 observations required to calculate averages).'
+      };
+    }
     const prices = filteredHistory.map(p => Number(p.price) || 0);
     const lowest = Math.min(...prices);
+    const highest = Math.max(...prices);
     const sum = prices.reduce((acc, p) => acc + p, 0);
     const avg = Math.round(sum / prices.length);
-    const current = prices[prices.length - 1];
-    const isGenuine = current < avg;
+    const current = Number(product?.lowestPrice || prices[prices.length - 1]);
     const diffPercent = avg > 0 ? Math.round(((current - avg) / avg) * 100) : 0;
+    // Genuine deal strictly requires being at least 8% below the genuine historical average
+    const isGenuine = diffPercent <= -8;
 
     return {
+      hasSufficientHistory: true,
       current,
       avg,
       lowest,
+      highest,
       isGenuine,
-      diffPercent
+      diffPercent,
+      observationCount: prices.length,
+      observationPeriod: `${filteredHistory[0]?.date || 'Start'} to ${filteredHistory[filteredHistory.length - 1]?.date || 'Today'}`,
+      verdict: isGenuine 
+        ? `Genuine Deal: ₹${current.toLocaleString()} is ${Math.abs(diffPercent)}% below historical average.` 
+        : `Current price is consistent with recorded historical average (₹${avg.toLocaleString()}).`
     };
-  }, [filteredHistory]);
+  }, [filteredHistory, product]);
 
   // Loading State
   if (loading && !product) {
@@ -229,7 +250,7 @@ export default function ProductDetailsPage() {
   const lowestPrice = product.lowestPrice || bestOffer?.price || 0;
   const basePrice = product.basePrice || 0;
   const bestStore = product.lowestStore || bestOffer?.store || 'Best Store';
-  const isGenuineDiscount = product.priceAnalysis?.isGenuineDiscount || (basePrice > lowestPrice && lowestPrice <= basePrice * 0.9);
+  const isGenuineDiscount = Boolean(product.priceAnalysis?.isGenuineDiscount);
   const discountPercent = basePrice > lowestPrice ? Math.round(((basePrice - lowestPrice) / basePrice) * 100) : 0;
 
   // SVG Chart Dimensions & Coordinates
@@ -310,9 +331,11 @@ export default function ProductDetailsPage() {
                 {product.category && (
                   <span className="badge-category">{product.category}</span>
                 )}
-                {isGenuineDiscount && (
-                  <span className="deal-badge best-price">Best Price</span>
-                )}
+                {isGenuineDiscount ? (
+                  <span className="deal-badge price-drop">{product.priceAnalysis?.dealBadge || 'Genuine Deal'}</span>
+                ) : discountPercent >= 15 ? (
+                  <span className="deal-badge best-price">{discountPercent}% Off MRP</span>
+                ) : null}
               </div>
 
               {/* Product Name */}
@@ -323,11 +346,13 @@ export default function ProductDetailsPage() {
               {/* Star Rating and Review Count */}
               <div className="product-rating-row">
                 <div className="rating-pill">
-                  <Star size={14} fill="#F59E0B" color="#F59E0B" />
-                  <span className="rating-score">{product.rating || '4.0'}</span>
+                  <Star size={14} fill={product.rating ? "#F59E0B" : "none"} color="#F59E0B" />
+                  <span className="rating-score">{product.rating ? product.rating : 'No Rating'}</span>
                 </div>
                 <span className="review-count-text">
-                  ({Number(product.reviewCount || 0).toLocaleString()} customer reviews)
+                  {typeof product.reviewCount === 'number' && product.reviewCount > 0
+                    ? `(${Number(product.reviewCount).toLocaleString()} verified ratings)`
+                    : '(No customer ratings recorded)'}
                 </span>
               </div>
 
@@ -409,8 +434,8 @@ export default function ProductDetailsPage() {
                 </button>
               </div>
 
-              {/* Section 4: Smart Value Score (Compact Subtle Card) */}
-              {product.smartValueScore?.score && (
+              {/* Section 4: Smart Value Score (Transparent MCDA Card) */}
+              {product.smartValueScore?.score ? (
                 <div className="svs-mini-card">
                   <div className="svs-mini-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -422,6 +447,44 @@ export default function ProductDetailsPage() {
                   <p className="svs-mini-explanation">
                     {product.smartValueScore.tier ? `Ranked: ${product.smartValueScore.tier}. ` : ''}
                     {product.smartValueScore.explanation || 'Optimal balance of market pricing, verified ratings, and trust.'}
+                  </p>
+                  {/* Verified Components Pills */}
+                  {product.smartValueScore.breakdown && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                      {product.smartValueScore.breakdown.priceCompetitiveness !== null && (
+                        <span style={{ fontSize: '0.72rem', padding: '2px 7px', borderRadius: '4px', background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)' }}>
+                          Price: {product.smartValueScore.breakdown.priceCompetitiveness}/100
+                        </span>
+                      )}
+                      {product.smartValueScore.breakdown.ratingsAndSatisfaction !== null && (
+                        <span style={{ fontSize: '0.72rem', padding: '2px 7px', borderRadius: '4px', background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)' }}>
+                          Rating: {product.smartValueScore.breakdown.ratingsAndSatisfaction}/100
+                        </span>
+                      )}
+                      {product.smartValueScore.breakdown.reviewTrustConfidence !== null && (
+                        <span style={{ fontSize: '0.72rem', padding: '2px 7px', borderRadius: '4px', background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)' }}>
+                          Trust: {product.smartValueScore.breakdown.reviewTrustConfidence}/100
+                        </span>
+                      )}
+                      {product.smartValueScore.breakdown.hardwareSpecsPerRupee !== null && (
+                        <span style={{ fontSize: '0.72rem', padding: '2px 7px', borderRadius: '4px', background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)' }}>
+                          Specs: {product.smartValueScore.breakdown.hardwareSpecsPerRupee}/100
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="svs-mini-card" style={{ opacity: 0.85 }}>
+                  <div className="svs-mini-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sparkles size={14} color="var(--text-muted)" />
+                      <span className="svs-mini-label" style={{ color: 'var(--text-secondary)' }}>Smart Value Score</span>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Unavailable</span>
+                  </div>
+                  <p className="svs-mini-explanation">
+                    {product.smartValueScore?.explanation || 'Insufficient data points across pricing, ratings, and specifications to calculate a verified Smart Value Score.'}
                   </p>
                 </div>
               )}
@@ -755,34 +818,46 @@ export default function ProductDetailsPage() {
 
                   {/* Summary Cards Below Chart */}
                   {historyStats && (
-                    <div className="history-summary-cards-row">
-                      {/* Current Price */}
-                      <div className="summary-stat-card clean-card">
-                        <span className="stat-label">Current Price</span>
-                        <span className="stat-value">{formatPrice(historyStats.current)}</span>
-                        {historyStats.isGenuine && (
-                          <span className="deal-badge price-drop" style={{ marginTop: '4px' }}>
-                            Genuine Deal ({Math.abs(historyStats.diffPercent)}% below avg)
+                    historyStats.hasSufficientHistory ? (
+                      <div className="history-summary-cards-row">
+                        {/* Current Price */}
+                        <div className="summary-stat-card clean-card">
+                          <span className="stat-label">Current Price</span>
+                          <span className="stat-value">{formatPrice(historyStats.current)}</span>
+                          {historyStats.isGenuine && (
+                            <span className="deal-badge price-drop" style={{ marginTop: '4px' }}>
+                              Genuine Deal ({Math.abs(historyStats.diffPercent)}% below avg)
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Historical Average */}
+                        <div className="summary-stat-card clean-card">
+                          <span className="stat-label">Historical Average ({historyRange === '1M' ? '1 Mo' : historyRange === '3M' ? '3 Mos' : '6 Mos'})</span>
+                          <span className="stat-value">{formatPrice(historyStats.avg)}</span>
+                          <span className="stat-subtext">Period: {historyStats.observationPeriod}</span>
+                        </div>
+
+                        {/* Lowest Recorded Price */}
+                        <div className="summary-stat-card clean-card">
+                          <span className="stat-label">Lowest Recorded Price</span>
+                          <span className="stat-value" style={{ color: 'var(--accent-green)' }}>
+                            {formatPrice(historyStats.lowest)}
                           </span>
-                        )}
+                          <span className="stat-subtext">Verified historical low</span>
+                        </div>
                       </div>
-
-                      {/* Historical Average */}
-                      <div className="summary-stat-card clean-card">
-                        <span className="stat-label">Historical Average ({historyRange === '1M' ? '1 Mo' : historyRange === '3M' ? '3 Mos' : '6 Mos'})</span>
-                        <span className="stat-value">{formatPrice(historyStats.avg)}</span>
-                        <span className="stat-subtext">Based on recorded offers</span>
+                    ) : (
+                      <div className="clean-card" style={{ padding: '24px 20px', textAlign: 'center', marginTop: '16px' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--primary-lavender)', marginBottom: '8px' }}>
+                          <Info size={18} />
+                          <strong style={{ fontSize: '0.95rem' }}>Insufficient Price History</strong>
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto', lineHeight: 1.5 }}>
+                          ShopWise has recorded {historyStats.observationCount} live price observation for this product. A minimum of 3 historical data points over time is required to calculate averages and certify genuine deals.
+                        </p>
                       </div>
-
-                      {/* Lowest Recorded Price */}
-                      <div className="summary-stat-card clean-card">
-                        <span className="stat-label">Lowest Recorded Price</span>
-                        <span className="stat-value" style={{ color: 'var(--accent-green)' }}>
-                          {formatPrice(historyStats.lowest)}
-                        </span>
-                        <span className="stat-subtext">Best tracked window</span>
-                      </div>
-                    </div>
+                    )
                   )}
                 </>
               )}
@@ -798,8 +873,8 @@ export default function ProductDetailsPage() {
               className="tab-content-panel clean-card"
             >
               <div className="tab-header-box">
-                <h2 className="tab-panel-title">Customer Reviews</h2>
-                <p className="tab-panel-subtitle">Verified feedback and AI-analyzed review trust metrics.</p>
+                <h2 className="tab-panel-title">Customer Reviews & Intelligence</h2>
+                <p className="tab-panel-subtitle">Verified feedback signals and transparent review trust metrics.</p>
               </div>
 
               {/* Top Rating & Trust Score Summary */}
@@ -807,23 +882,36 @@ export default function ProductDetailsPage() {
                 {/* Overall Rating Box */}
                 <div className="review-metric-box clean-card">
                   <span className="metric-box-label">Overall Rating</span>
-                  <div className="overall-score-big">
-                    <span>{product.rating || '4.0'}</span>
-                    <span className="out-of">/ 5.0</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '3px', margin: '4px 0' }}>
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star 
-                        key={s} 
-                        size={16} 
-                        fill={s <= Math.round(product.rating || 4) ? '#F59E0B' : 'none'} 
-                        color="#F59E0B" 
-                      />
-                    ))}
-                  </div>
-                  <span className="metric-subtext">
-                    Based on {Number(product.reviewCount || 0).toLocaleString()} customer ratings
-                  </span>
+                  {product.rating ? (
+                    <>
+                      <div className="overall-score-big">
+                        <span>{product.rating}</span>
+                        <span className="out-of">/ 5.0</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '3px', margin: '4px 0' }}>
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star 
+                            key={s} 
+                            size={16} 
+                            fill={s <= Math.round(product.rating) ? '#F59E0B' : 'none'} 
+                            color="#F59E0B" 
+                          />
+                        ))}
+                      </div>
+                      <span className="metric-subtext">
+                        Based on {Number(product.reviewCount || 0).toLocaleString()} customer ratings
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="overall-score-big" style={{ fontSize: '1.4rem', color: 'var(--text-muted)' }}>
+                        N/A
+                      </div>
+                      <span className="metric-subtext" style={{ marginTop: '8px' }}>
+                        No customer ratings supplied by retailers
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* Review Trust Score Box */}
@@ -832,61 +920,81 @@ export default function ProductDetailsPage() {
                     <span className="metric-box-label">Review Trust Score</span>
                     <ShieldCheck size={18} color="var(--primary-lavender)" />
                   </div>
-                  <div className="overall-score-big" style={{ color: 'var(--primary-lavender)' }}>
-                    <span>{product.reviewTrustScore?.score || 88}</span>
-                    <span className="out-of">/ 100</span>
-                  </div>
-                  <span className="trust-grade-pill">
-                    {product.reviewTrustScore?.score >= 85 ? 'High Trust' : product.reviewTrustScore?.score >= 65 ? 'Medium Trust' : 'Moderate Trust'}
-                  </span>
-                  <p className="metric-subtext" style={{ marginTop: '6px', lineHeight: 1.4 }}>
-                    {product.reviewTrustScore?.confidenceVerdict || `${product.reviewTrustScore?.verifiedPurchasePercentage || 90}% verified buyer ratio with low repetition.`}
-                  </p>
+                  {product.reviewTrustScore?.isScoreAvailable ? (
+                    <>
+                      <div className="overall-score-big" style={{ color: 'var(--primary-lavender)' }}>
+                        <span>{product.reviewTrustScore.score}</span>
+                        <span className="out-of">/ 100</span>
+                      </div>
+                      <span className="trust-grade-pill">
+                        {product.reviewTrustScore.grade || 'Verified Trust'}
+                      </span>
+                      <p className="metric-subtext" style={{ marginTop: '6px', lineHeight: 1.4 }}>
+                        {product.reviewTrustScore.confidenceVerdict}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="overall-score-big" style={{ color: 'var(--text-muted)', fontSize: '1.4rem' }}>
+                        Unavailable
+                      </div>
+                      <span className="trust-grade-pill" style={{ backgroundColor: 'var(--bg-card-subtle)', color: 'var(--text-secondary)' }}>
+                        Insufficient Data
+                      </span>
+                      <p className="metric-subtext" style={{ marginTop: '6px', lineHeight: 1.4 }}>
+                        {product.reviewTrustScore?.confidenceVerdict || "Insufficient rating or review volume available across stores to calculate a verified Trust Score."}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* AI Review Summary (Pros & Cons) */}
-              {product.aiReviewSummary && (
+              {product.aiReviewSummary?.hasReviewData && ((product.aiReviewSummary.positivePoints && product.aiReviewSummary.positivePoints.length > 0) || (product.aiReviewSummary.negativePoints && product.aiReviewSummary.negativePoints.length > 0)) ? (
                 <div className="ai-pros-cons-grid">
                   {/* Pros */}
-                  <div className="pros-card clean-card">
-                    <div className="pros-cons-header pros">
-                      <CheckCircle2 size={16} color="var(--accent-green)" />
-                      <h3>Key Highlights (Pros)</h3>
+                  {product.aiReviewSummary.positivePoints && product.aiReviewSummary.positivePoints.length > 0 && (
+                    <div className="pros-card clean-card">
+                      <div className="pros-cons-header pros">
+                        <CheckCircle2 size={16} color="var(--accent-green)" />
+                        <h3>Key Highlights (Pros)</h3>
+                      </div>
+                      <ul className="pros-cons-list">
+                        {product.aiReviewSummary.positivePoints.slice(0, 3).map((item, idx) => (
+                          <li key={idx} className="pro-item">
+                            <Check size={14} color="var(--accent-green)" style={{ flexShrink: 0, marginTop: '3px' }} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="pros-cons-list">
-                      {(product.aiReviewSummary.positivePoints || [
-                        'Strong build quality and premium materials',
-                        'Reliable all-day performance and efficiency',
-                        'Exceptional camera quality and color accuracy'
-                      ]).slice(0, 3).map((item, idx) => (
-                        <li key={idx} className="pro-item">
-                          <Check size={14} color="var(--accent-green)" style={{ flexShrink: 0, marginTop: '3px' }} />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  )}
 
                   {/* Cons */}
-                  <div className="cons-card clean-card">
-                    <div className="pros-cons-header cons">
-                      <AlertTriangle size={16} color="var(--accent-amber)" />
-                      <h3>Considerations (Cons)</h3>
+                  {product.aiReviewSummary.negativePoints && product.aiReviewSummary.negativePoints.length > 0 && (
+                    <div className="cons-card clean-card">
+                      <div className="pros-cons-header cons">
+                        <AlertTriangle size={16} color="var(--accent-amber)" />
+                        <h3>Considerations (Cons)</h3>
+                      </div>
+                      <ul className="pros-cons-list">
+                        {product.aiReviewSummary.negativePoints.slice(0, 3).map((item, idx) => (
+                          <li key={idx} className="con-item">
+                            <Info size={14} color="var(--accent-amber)" style={{ flexShrink: 0, marginTop: '3px' }} />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="pros-cons-list">
-                      {(product.aiReviewSummary.negativePoints || [
-                        'Charging accessory sold separately in retail packaging',
-                        'Standard display refresh rate on base configuration',
-                        'High repair and official accessory costs'
-                      ]).slice(0, 3).map((item, idx) => (
-                        <li key={idx} className="con-item">
-                          <Info size={14} color="var(--accent-amber)" style={{ flexShrink: 0, marginTop: '3px' }} />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  )}
+                </div>
+              ) : (
+                <div className="clean-card" style={{ padding: '36px 20px', textAlign: 'center', marginTop: '16px' }}>
+                  <PackageSearch size={28} color="var(--primary-lavender)" style={{ margin: '0 auto 10px auto' }} />
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>Not enough verified review data</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '440px', margin: '0 auto', lineHeight: 1.5 }}>
+                    Authorized shopping feeds have not supplied full customer review text for this product. ShopWise strictly relies on verified customer feedback and does not generate artificial reviews.
+                  </p>
                 </div>
               )}
 

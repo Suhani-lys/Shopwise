@@ -16,6 +16,7 @@ export default function PriceAlertModal() {
   } = useShopwise();
 
   const [targetPrice, setTargetPrice] = useState('');
+  const [selectedStore, setSelectedStore] = useState('All Stores');
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -47,7 +48,7 @@ export default function PriceAlertModal() {
     }
 
     setSubmitting(true);
-    const result = await createAlert(product.id, targetPrice, currentUser.email);
+    const result = await createAlert(product.id, targetPrice, currentUser.email, selectedStore, product);
     setSubmitting(false);
 
     if (result && result.success) {
@@ -232,6 +233,32 @@ export default function PriceAlertModal() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {product.offers && product.offers.length > 1 && (
+            <div>
+              <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
+                Target Store
+              </label>
+              <select
+                value={selectedStore}
+                onChange={(e) => setSelectedStore(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: '#FFFFFF',
+                  fontSize: '0.85rem',
+                  color: 'var(--text-primary)'
+                }}
+              >
+                <option value="All Stores">All Stores (Lowest Price across all retailers)</option>
+                {product.offers.map(o => (
+                  <option key={o.store} value={o.store}>{o.store} (Current: ₹{o.price.toLocaleString('en-IN')})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>
               Target Price (₹)

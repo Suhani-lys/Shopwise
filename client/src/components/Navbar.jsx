@@ -29,7 +29,8 @@ export default function Navbar() {
     logout,
     setIsAccountModalOpen,
     navigateToLogin,
-    navigateToSignUp
+    navigateToSignUp,
+    unreadNotificationsCount
   } = useShopwise();
 
   const [term, setTerm] = useState(searchQuery || '');
@@ -254,10 +255,14 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Price Drop Alerts Icon Button */}
+          {/* Price Drop Alerts & Notifications Icon Button */}
           <button
             onClick={() => navigateToAlerts()}
-            title={alerts.length > 0 ? `Price Alerts (${alerts.length})` : "Price Alerts"}
+            title={
+              unreadNotificationsCount > 0 
+                ? `${unreadNotificationsCount} unread price drop notification${unreadNotificationsCount > 1 ? 's' : ''}`
+                : (alerts.length > 0 ? `Price Alerts (${alerts.length})` : "Price Alerts")
+            }
             aria-label="Price drop alerts dashboard"
             style={{
               position: 'relative',
@@ -267,18 +272,37 @@ export default function Navbar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: alerts.length > 0 ? 'var(--primary-lavender)' : 'var(--text-secondary)',
-              backgroundColor: alerts.length > 0 ? 'var(--primary-light)' : 'transparent',
+              color: (unreadNotificationsCount > 0 || alerts.length > 0) ? 'var(--primary-lavender)' : 'var(--text-secondary)',
+              backgroundColor: (unreadNotificationsCount > 0 || alerts.length > 0) ? 'var(--primary-light)' : 'transparent',
               border: '1px solid transparent',
               transition: 'all var(--transition-fast)'
             }}
             onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--primary-light)'; }}
             onMouseOut={(e) => { 
-              e.currentTarget.style.backgroundColor = alerts.length > 0 ? 'var(--primary-light)' : 'transparent'; 
+              e.currentTarget.style.backgroundColor = (unreadNotificationsCount > 0 || alerts.length > 0) ? 'var(--primary-light)' : 'transparent'; 
             }}
           >
             <Bell size={18} />
-            {alerts.length > 0 && (
+            {unreadNotificationsCount > 0 ? (
+              <span style={{
+                position: 'absolute',
+                top: '4px',
+                right: '4px',
+                width: '15px',
+                height: '15px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--primary-lavender)',
+                color: '#FFFFFF',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 0 0 2px #FFFFFF'
+              }}>
+                {unreadNotificationsCount}
+              </span>
+            ) : alerts.length > 0 ? (
               <span style={{
                 position: 'absolute',
                 top: '4px',
@@ -296,7 +320,7 @@ export default function Navbar() {
               }}>
                 {alerts.length}
               </span>
-            )}
+            ) : null}
           </button>
 
           {/* Divider */}

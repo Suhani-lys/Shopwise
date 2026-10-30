@@ -13,16 +13,22 @@ export default function ProductCard({ product }) {
     return '₹' + Number(val).toLocaleString('en-IN');
   };
 
-  // Determine exactly ONE relevant badge
-  let badgeText = 'Best Price';
+  // Determine exactly ONE evidence-backed badge
+  let badgeText = null;
   let badgeClass = 'deal-badge best-price';
 
-  if (product.priceAnalysis?.isGenuineDiscount && product.priceAnalysis?.currentVsAveragePercent <= -10) {
-    badgeText = 'Price Drop';
+  if (product.priceAnalysis?.isGenuineDiscount) {
+    badgeText = product.priceAnalysis.allTimeLow && product.lowestPrice <= product.priceAnalysis.allTimeLow 
+      ? 'All-Time Low' 
+      : 'Genuine Deal';
     badgeClass = 'deal-badge price-drop';
-  } else if (product.smartValueScore?.score >= 93) {
-    badgeText = 'Best Value';
+  } else if (product.smartValueScore?.score >= 90) {
+    badgeText = 'Top Value';
     badgeClass = 'deal-badge best-value';
+  } else if (product.basePrice > product.lowestPrice && ((product.basePrice - product.lowestPrice) / product.basePrice) >= 0.15) {
+    const disc = Math.round(((product.basePrice - product.lowestPrice) / product.basePrice) * 100);
+    badgeText = `${disc}% OFF`;
+    badgeClass = 'deal-badge best-price';
   }
 
   const bestStore = product.lowestStore || product.offers?.[0]?.store || 'Best Deal';
@@ -148,19 +154,27 @@ export default function ProductCard({ product }) {
             fontSize: '0.8rem',
             marginBottom: '10px'
           }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '3px',
-              fontWeight: 600,
-              color: 'var(--text-primary)'
-            }}>
-              <Star size={13} fill="#F59E0B" color="#F59E0B" />
-              {product.rating}
-            </span>
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
-              ({Number(product.reviewCount).toLocaleString()})
-            </span>
+            {product.rating ? (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '3px',
+                fontWeight: 600,
+                color: 'var(--text-primary)'
+              }}>
+                <Star size={13} fill="#F59E0B" color="#F59E0B" />
+                {Number(product.rating).toFixed(1)}
+              </span>
+            ) : (
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                Unrated
+              </span>
+            )}
+            {product.reviewCount ? (
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                ({Number(product.reviewCount).toLocaleString()})
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -202,9 +216,24 @@ export default function ProductCard({ product }) {
             <div style={{
               fontSize: '0.72rem',
               color: 'var(--text-secondary)',
-              marginTop: '2px'
+              marginTop: '2px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
             }}>
-              on {bestStore}
+              <span>on <strong>{bestStore}</strong></span>
+              {Array.isArray(product.offers) && product.offers.length > 1 && (
+                <span style={{
+                  color: 'var(--primary-lavender)',
+                  fontWeight: 600,
+                  fontSize: '0.68rem',
+                  backgroundColor: 'var(--primary-light)',
+                  padding: '1px 5px',
+                  borderRadius: '4px'
+                }}>
+                  +{product.offers.length - 1} stores
+                </span>
+              )}
             </div>
           </div>
 

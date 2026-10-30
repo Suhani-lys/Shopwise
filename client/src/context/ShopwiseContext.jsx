@@ -3,7 +3,7 @@ import { fallbackProducts } from '../data/fallbackProducts';
 
 const ShopwiseContext = createContext();
 
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_BASE_URL } from '../config/api';
 
 // Helper matching functions for robust e-commerce filtering
 const matchesCategory = (productCat, chosenCat) => {
@@ -99,6 +99,8 @@ export const ShopwiseProvider = ({ children }) => {
   const [backendOnline, setBackendOnline] = useState(false);
   const [dbStatus, setDbStatus] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const [searchMeta, setSearchMeta] = useState(null);
+  const [providers, setProviders] = useState([]);
 
   // Search, Category, Sorting, and Filter states
   const [searchQuery, setSearchQuery] = useState(() => {
@@ -222,10 +224,12 @@ export const ShopwiseProvider = ({ children }) => {
   const [isArchitectureModalOpen, setIsArchitectureModalOpen] = useState(false);
   const [isCustomWeightModalOpen, setIsCustomWeightModalOpen] = useState(false);
 
-  // Alerts
+  // Alerts & Notifications
   const [alerts, setAlerts] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(false);
   const [alertsError, setAlertsError] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   // Priority formula sliders (Smart Value Score)
   const [userWeights, setUserWeights] = useState({
@@ -344,36 +348,64 @@ export const ShopwiseProvider = ({ children }) => {
     }
   }, [authToken, currentUser]);
 
-  // Fetch Products with Real Multi-Criteria Filtering
+  // Fetch In-App Notifications
+  const fetchNotifications = useCallback(async () => {
+    if (!authToken && !currentUser) {
+      setNotifications([]);
+      setUnreadNotificationsCount(0);
+      return;
+    }
+    try {
+      const headers = {};
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      const url = currentUser?.email ? `${API_BASE_URL}/notifications?userEmail=${encodeURIComponent(currentUser.email)}` : `${API_BASE_URL}/notifications`;
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setNotifications(data.data);
+          setUnreadNotificationsCount(data.unreadCount || 0);
+        }
+      }
+    } catch (err) {
+      console.warn('API error fetching notifications:', err);
+    }
+  }, [authToken, currentUser]);
+
+  // Fetch Products with Real Multi-Criteria Dynamic Search
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setApiError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/products`);
+      const qParams = new URLSearchParams();
+      if (searchQuery && searchQuery.trim()) qParams.set('search', searchQuery.trim());
+      if (selectedCategory && selectedCategory !== 'All') qParams.set('category', selectedCategory);
+      if (sortBy) qParams.set('sort', sortBy);
+      if (minPrice > 0) qParams.set('minPrice', minPrice);
+      if (maxPrice < 200000) qParams.set('maxPrice', maxPrice);
+      if (minRating > 0) qParams.set('minRating', minRating);
+      if (selectedStore && selectedStore !== 'All') qParams.set('store', selectedStore);
+
+      const queryString = qParams.toString();
+      const endpoint = queryString ? `${API_BASE_URL}/products?${queryString}` : `${API_BASE_URL}/products`;
+
+      const res = await fetch(endpoint);
       let rawCatalog = fallbackProducts;
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.data) {
           rawCatalog = data.data;
           setBackendOnline(true);
+          if (data.meta) {
+            setSearchMeta(data.meta);
+            if (data.meta.providerStatuses) {
+              setProviders(data.meta.providerStatuses);
+            }
+          }
         }
       }
       setAllProducts(rawCatalog);
-
-      // Multi-criteria filter execution
-      let filtered = rawCatalog.filter(p => {
-        return (
-          matchesSearch(p, searchQuery) &&
-          matchesCategory(p.category, selectedCategory) &&
-          matchesPrice(p, minPrice, maxPrice) &&
-          matchesRating(p, minRating) &&
-          matchesStore(p, selectedStore)
-        );
-      });
-
-      // Sort results
-      filtered = sortProducts(filtered, sortBy, searchQuery);
-      setProducts(filtered);
+      setProducts(rawCatalog);
       setLoading(false);
     } catch (err) {
       console.warn('API connection issue, utilizing fallback catalog:', err);
@@ -397,7 +429,8 @@ export const ShopwiseProvider = ({ children }) => {
     checkHealth();
     fetchProducts();
     fetchAlerts();
-  }, [checkHealth, fetchProducts, fetchAlerts]);
+    fetchNotifications();
+  }, [checkHealth, fetchProducts, fetchAlerts, fetchNotifications]);
 
   // Save compareList IDs to localStorage whenever compareList changes
   useEffect(() => {
@@ -827,10 +860,10 @@ export const ShopwiseProvider = ({ children }) => {
   }, [currentUser, currentView, showToast, navigateToLogin]);
 
   // Create Price Alert
-  const createAlert = useCallback(async (productId, targetPrice, userEmail) => {
+  const createAlert = useCallback(async (productId, targetPrice, userEmail, selectedStore = 'All Stores', extraData = {}) => {
     const effectiveEmail = currentUser?.email || userEmail;
     if (!currentUser && !effectiveEmail) {
-      const targetProd = allProducts.find(p => p.id === productId);
+      const targetProd = allProducts.find(p => p.id === productId) || extraData;
       setAuthRedirectAction({ action: 'createAlert', product: targetProd, returnView: currentView });
       showToast('Please log in or sign up to activate price alerts.', 'info');
       navigateToLogin();
@@ -843,34 +876,49 @@ export const ShopwiseProvider = ({ children }) => {
         headers['Authorization'] = `Bearer ${authToken}`;
       }
 
+      const payload = {
+        productId,
+        targetPrice,
+        selectedStore: selectedStore || 'All Stores',
+        userEmail: effectiveEmail,
+        productName: extraData.name || extraData.productName,
+        productImage: extraData.image || extraData.productImage,
+        productUrl: extraData.url || extraData.productUrl,
+        currentLowestPrice: extraData.lowestPrice || extraData.currentLowestPrice
+      };
+
       const res = await fetch(`${API_BASE_URL}/alerts`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ productId, targetPrice, userEmail: effectiveEmail })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setAlerts(prev => [data.data, ...prev]);
         showToast(data.message, 'success');
+        fetchNotifications();
         return { success: true, data: data.data, message: data.message };
       } else {
         showToast(data.message || 'Failed to create price alert', 'error');
         return { success: false, message: data.message || 'Server error' };
       }
     } catch {
-      const targetProd = allProducts.find(p => p.id === productId);
+      const targetProd = allProducts.find(p => p.id === productId) || extraData;
       if (targetProd) {
-        const isTriggered = (targetProd.lowestPrice || 0) <= parseFloat(targetPrice);
+        const isTriggered = (targetProd.lowestPrice || targetProd.currentLowestPrice || 0) <= parseFloat(targetPrice);
         const fallbackAlert = {
           id: `alert-${Date.now()}`,
-          productId: targetProd.id,
-          productName: targetProd.name,
-          productImage: targetProd.image,
-          currentLowestPrice: targetProd.lowestPrice,
+          productId: targetProd.id || productId,
+          productName: targetProd.name || targetProd.productName || 'Tracked Product',
+          productImage: targetProd.image || targetProd.productImage || '',
+          productUrl: targetProd.url || '',
+          selectedStore: selectedStore || 'All Stores',
+          currentLowestPrice: targetProd.lowestPrice || targetProd.currentLowestPrice || parseFloat(targetPrice),
           targetPrice: parseFloat(targetPrice),
           userEmail: effectiveEmail,
           userId: currentUser?.id || null,
           status: isTriggered ? 'Triggered' : 'Active',
+          monitoringStatus: isTriggered ? 'triggered' : 'active',
           triggeredAt: isTriggered ? new Date().toISOString() : null,
           createdAt: new Date().toISOString()
         };
@@ -880,10 +928,10 @@ export const ShopwiseProvider = ({ children }) => {
       }
       return { success: false, message: 'Could not connect to alerts server' };
     }
-  }, [allProducts, currentUser, authToken, currentView, showToast, navigateToLogin]);
+  }, [allProducts, currentUser, authToken, currentView, showToast, navigateToLogin, fetchNotifications]);
 
   // Update Price Alert
-  const updateAlert = useCallback(async (id, targetPrice, userEmail) => {
+  const updateAlert = useCallback(async (id, targetPrice, userEmail, selectedStore) => {
     try {
       const headers = { 'Content-Type': 'application/json' };
       if (authToken) {
@@ -893,7 +941,11 @@ export const ShopwiseProvider = ({ children }) => {
       const res = await fetch(`${API_BASE_URL}/alerts/${id}`, {
         method: 'PUT',
         headers,
-        body: JSON.stringify({ targetPrice, userEmail: currentUser?.email || userEmail })
+        body: JSON.stringify({ 
+          targetPrice, 
+          selectedStore,
+          userEmail: currentUser?.email || userEmail 
+        })
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -912,6 +964,7 @@ export const ShopwiseProvider = ({ children }) => {
           return {
             ...a,
             targetPrice: parsed,
+            selectedStore: selectedStore || a.selectedStore,
             status: isTriggered ? 'Triggered' : 'Active',
             triggeredAt: isTriggered ? (a.triggeredAt || new Date().toISOString()) : null
           };
@@ -945,6 +998,114 @@ export const ShopwiseProvider = ({ children }) => {
     return { success: true };
   }, [authToken, showToast]);
 
+  // Pause Alert
+  const pauseAlert = useCallback(async (id) => {
+    try {
+      const headers = {};
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      const res = await fetch(`${API_BASE_URL}/alerts/${id}/pause`, { method: 'PATCH', headers });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'Paused', monitoringStatus: 'paused' } : a));
+        showToast(data.message || 'Alert monitoring paused', 'info');
+        return { success: true };
+      }
+    } catch {
+      // offline fallback
+    }
+    setAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'Paused', monitoringStatus: 'paused' } : a));
+    showToast('Alert paused', 'info');
+    return { success: true };
+  }, [authToken, showToast]);
+
+  // Resume Alert
+  const resumeAlert = useCallback(async (id) => {
+    try {
+      const headers = {};
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      const res = await fetch(`${API_BASE_URL}/alerts/${id}/resume`, { method: 'PATCH', headers });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'Active', monitoringStatus: 'active' } : a));
+        showToast(data.message || 'Alert resumed and actively monitoring', 'success');
+        return { success: true };
+      }
+    } catch {
+      // offline fallback
+    }
+    setAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'Active', monitoringStatus: 'active' } : a));
+    showToast('Alert resumed and active', 'success');
+    return { success: true };
+  }, [authToken, showToast]);
+
+  // Manual Check Now
+  const checkAlertsNow = useCallback(async () => {
+    try {
+      showToast('Running live multi-store price check...', 'info');
+      const headers = {};
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      const res = await fetch(`${API_BASE_URL}/alerts/check-now`, { method: 'POST', headers });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await fetchAlerts();
+        await fetchNotifications();
+        const stats = data.result?.stats;
+        showToast(stats ? `Check complete: ${stats.checkedAlerts} monitored, ${stats.triggeredAlerts} triggered!` : 'Live check cycle completed!', 'success');
+        return { success: true, stats };
+      }
+    } catch (err) {
+      showToast('Price check request failed', 'error');
+    }
+  }, [authToken, fetchAlerts, fetchNotifications, showToast]);
+
+  // Mark Notification Read
+  const markNotificationRead = useCallback(async (id) => {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ userEmail: currentUser?.email })
+      });
+    } catch {
+      // offline
+    }
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    setUnreadNotificationsCount(prev => Math.max(0, prev - 1));
+  }, [authToken, currentUser]);
+
+  // Mark All Notifications Read
+  const markAllNotificationsRead = useCallback(async () => {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      await fetch(`${API_BASE_URL}/notifications/read-all`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ userEmail: currentUser?.email })
+      });
+    } catch {
+      // offline
+    }
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadNotificationsCount(0);
+    showToast('All notifications marked as read', 'info');
+  }, [authToken, currentUser, showToast]);
+
+  // Dismiss Notification
+  const dismissNotification = useCallback(async (id) => {
+    try {
+      const headers = {};
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      await fetch(`${API_BASE_URL}/notifications/${id}`, { method: 'DELETE', headers });
+    } catch {
+      // offline
+    }
+    setNotifications(prev => prev.filter(n => n.id !== id));
+    showToast('Notification dismissed', 'info');
+  }, [authToken, showToast]);
+
   // Custom SVS formula calculation
   const applyCustomWeights = async (newWeights) => {
     setUserWeights(newWeights);
@@ -961,23 +1122,50 @@ export const ShopwiseProvider = ({ children }) => {
         return;
       }
     } catch {
-      const total = newWeights.price + newWeights.rating + newWeights.trust + newWeights.specs;
       const updated = products.map(p => {
-        const priceScore = Math.min(99, Math.round(70 + (((p.basePrice - p.lowestPrice) / p.basePrice) * 100 * 0.8)));
-        const ratingScore = Math.round((p.rating / 5) * 100);
-        const trustScore = p.reviewTrustScore?.score || 85;
-        const specsScore = p.smartValueScore?.breakdown?.hardwareSpecsPerRupee || 90;
-        const newScore = Math.round((priceScore * newWeights.price + ratingScore * newWeights.rating + trustScore * newWeights.trust + specsScore * newWeights.specs) / total);
+        let weightedSum = 0;
+        let activeWeight = 0;
+
+        // Price
+        if (p.lowestPrice && p.basePrice && p.basePrice >= p.lowestPrice) {
+          const discountPct = ((p.basePrice - p.lowestPrice) / p.basePrice) * 100;
+          const priceScore = Math.min(100, Math.max(30, Math.round(50 + discountPct * 1.1)));
+          weightedSum += priceScore * newWeights.price;
+          activeWeight += newWeights.price;
+        }
+
+        // Rating
+        if (typeof p.rating === 'number' && p.rating > 0) {
+          const ratingScore = Math.min(100, Math.round((p.rating / 5) * 100));
+          weightedSum += ratingScore * newWeights.rating;
+          activeWeight += newWeights.rating;
+        }
+
+        // Trust
+        if (p.reviewTrustScore?.isScoreAvailable && typeof p.reviewTrustScore.score === 'number') {
+          weightedSum += p.reviewTrustScore.score * newWeights.trust;
+          activeWeight += newWeights.trust;
+        }
+
+        // Specs
+        if (p.smartValueScore?.breakdown?.hardwareSpecsPerRupee) {
+          weightedSum += p.smartValueScore.breakdown.hardwareSpecsPerRupee * newWeights.specs;
+          activeWeight += newWeights.specs;
+        }
+
+        const newScore = activeWeight > 0 ? Math.round(weightedSum / activeWeight) : null;
         return {
           ...p,
           smartValueScore: {
             ...p.smartValueScore,
             score: newScore,
-            explanation: `Recalculated ${newScore}/100 using custom priorities.`
+            explanation: newScore !== null 
+              ? `Recalculated ${newScore}/100 using customized weights across verified components.` 
+              : 'Smart Value Score unavailable due to missing data.'
           }
         };
       });
-      updated.sort((a, b) => b.smartValueScore.score - a.smartValueScore.score);
+      updated.sort((a, b) => (b.smartValueScore?.score || 0) - (a.smartValueScore?.score || 0));
       setProducts(updated);
       showToast('Smart Value Scores updated!', 'success');
     }
@@ -991,6 +1179,8 @@ export const ShopwiseProvider = ({ children }) => {
       backendOnline,
       dbStatus,
       apiError,
+      searchMeta,
+      providers,
       setApiError,
       searchQuery,
       setSearchQuery,
@@ -1059,6 +1249,15 @@ export const ShopwiseProvider = ({ children }) => {
       createAlert,
       updateAlert,
       deleteAlert,
+      pauseAlert,
+      resumeAlert,
+      checkAlertsNow,
+      notifications,
+      unreadNotificationsCount,
+      fetchNotifications,
+      markNotificationRead,
+      markAllNotificationsRead,
+      dismissNotification,
       userWeights,
       applyCustomWeights,
       isDarkMode,

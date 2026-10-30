@@ -28,8 +28,10 @@ Built with a custom **Lavender Glassmorphic Design System**, ShopWise delivers a
 - **Review Trust Score (RTS)**: Heuristic scoring engine calculating verified buyer percentage, review volume anomalies, and rating dispersion to assess review credibility.
 - **AI Review Summarizer**: Distills sentiment into categorized pros, drawbacks, and an actionable buyer verdict.
 - **User Authentication & Accounts**: Full JWT-based authentication with bcrypt password hashing (10 salt rounds), password visibility toggles, and session persistence.
-- **Price Drop Alerts**: Set target thresholds on monitored products with active/triggered status tracking directly in user profiles.
-- **Dual-Mode Enterprise Data Store**: Seamlessly connects to MongoDB when available, and automatically activates a zero-crash in-memory fallback store if MongoDB is offline.
+- **Automated Price Drop Monitoring (Phase 3)**: Background scheduler running at configurable intervals (`PRICE_CHECK_INTERVAL_MINUTES`), batching product queries across providers, checking store-specific prices, and detecting genuine price drops.
+- **Real Transactional & In-App Notifications**: High-fidelity HTML emails via Nodemailer SMTP and persistent In-App notifications stored in MongoDB Atlas with unread counters, deal links, and read/dismiss controls.
+- **Advanced Price Alert Dashboard**: Complete alert management with store selection (Amazon, Flipkart, Nykaa, All Stores), Pause/Resume controls, "Check Prices Now" on-demand trigger, monitoring status badges, and direct store links.
+- **Persistent Cloud Database**: MongoDB Atlas persistent store with Data Access Layer (DAL) for alerts, notifications, users, and catalog products.
 
 ---
 
@@ -38,9 +40,10 @@ Built with a custom **Lavender Glassmorphic Design System**, ShopWise delivers a
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | React 18, Vite, Lucide React, Canvas-Confetti, Vanilla CSS (Design Tokens, Glassmorphism) |
-| **Backend** | Node.js, Express.js, Mongoose, bcryptjs, jsonwebtoken, cors, morgan, dotenv |
-| **Database** | MongoDB (Production) / In-Memory & JSON Hybrid Store (Zero-Crash Fallback) |
-| **Architecture** | RESTful API, Dual-Mode Data Access Layer (DAL), Component-Driven Architecture |
+| **Backend** | Node.js, Express.js, Mongoose, Nodemailer, bcryptjs, jsonwebtoken, cors, morgan, dotenv |
+| **Database** | MongoDB Atlas (Production Persistent Database) |
+| **Providers** | SerpApi (Google Shopping India Aggregator) + Multi-Platform Adapters |
+| **Architecture** | RESTful API, Provider-Adapter Search, Automated Background Scheduler, In-App Notification DAL |
 
 ---
 
@@ -108,8 +111,15 @@ cp server/.env.example server/.env
 | :--- | :--- | :--- |
 | `PORT` | Network port for Express API server | `5000` |
 | `NODE_ENV` | Runtime environment mode | `development` |
-| `MONGO_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/shopwise` |
+| `MONGO_URI` | MongoDB Atlas connection string | `mongodb+srv://<user>:<password>@cluster.mongodb.net/shopwise` |
 | `JWT_SECRET` | Secret key used for signing JWT auth tokens | `<your-secure-random-jwt-key>` |
+| `SERPAPI_API_KEY` | SerpApi API key for live multi-store Indian search | `<your-serpapi-key>` |
+| `PRICE_CHECK_INTERVAL_MINUTES` | Frequency of autonomous price checking | `15` |
+| `SMTP_HOST` | SMTP server host for price drop email notifications | `smtp.gmail.com` |
+| `SMTP_PORT` | SMTP port (587 for TLS, 465 for SSL) | `587` |
+| `SMTP_USER` | SMTP username / email address | `your-email@gmail.com` |
+| `SMTP_PASS` | SMTP application password | `<smtp-app-password>` |
+| `EMAIL_FROM` | Sender address for price drop emails | `"ShopWise Deals" <no-reply@shopwise.com>` |
 
 ### 2. Client Environment (`client/.env.local`)
 
@@ -154,22 +164,39 @@ npm install
 cd ..
 ```
 
-### Step 2: Seed the Database (Optional)
+### Step 2: Configure MongoDB Atlas (Persistent Cloud Database)
 
-If running a local MongoDB instance or connecting to MongoDB Atlas:
+ShopWise utilizes MongoDB for persistent storage of user accounts, hashed passwords, product catalogs, and price alerts.
+
+1. Sign in or create a free account at [MongoDB Atlas](https://cloud.mongodb.com/).
+2. Create a free shared cluster (**M0 Tier**).
+3. Under **Security** -> **Database Access**, create a user (e.g. `shopwise_admin`) with a secure password.
+4. Under **Security** -> **Network Access**, add `0.0.0.0/0` (Allow from anywhere) or your current IP address.
+5. In your cluster dashboard, click **Connect** -> **Drivers** (Node.js) -> Copy the connection string.
+6. Create `server/.env` and paste your credentials:
+   ```env
+   PORT=5000
+   NODE_ENV=development
+   MONGO_URI=mongodb+srv://shopwise_admin:<your-password>@<cluster-name>.mongodb.net/shopwise?retryWrites=true&w=majority
+   JWT_SECRET=your_super_secret_jwt_key_here
+   ```
+
+### Step 3: Seed the Database (Idempotent)
+
+Populate your MongoDB Atlas cluster with the initial product catalog:
 
 ```bash
 # From project root:
 npm run seed
 
-# Or directly within server folder:
+# Or from the server directory:
 cd server
 npm run seed
 ```
 
-*(If MongoDB is not running, ShopWise automatically boots using its built-in in-memory fallback store with zero setup required.)*
+*Note: The seeder is idempotent (using MongoDB `bulkWrite` with `upsert: true`). Running it multiple times will never duplicate products and preserves all existing users and alerts.*
 
-### Step 3: Run the Application
+### Step 4: Run the Application
 
 You can launch both the backend server and frontend client concurrently with a single command from the root directory:
 

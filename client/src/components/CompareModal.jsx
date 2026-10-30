@@ -35,10 +35,8 @@ export default function CompareModal() {
   const p2 = compareList[1];
   let verdictText = '';
   if (p1 && p2) {
-    const diff = Math.abs(p1.lowestPrice - p2.lowestPrice);
-    const cheaper = p1.lowestPrice < p2.lowestPrice ? p1 : p2;
-    const premium = p1.lowestPrice < p2.lowestPrice ? p2 : p1;
-    verdictText = `ShopWise AI Analysis: For budget-conscious shoppers looking for maximum value-for-money, ${cheaper.name} is the clear winner, saving ₹${diff.toLocaleString()} while retaining a strong ${cheaper.smartValueScore?.score || 90}/100 Smart Value Score. On the other hand, ${premium.name} is better suited for users who value ${premium.brand}'s signature ecosystem, display fidelity, and specific hardware nuances.`;
+    const cheaperSvsText = cheaper.smartValueScore?.score ? `retaining a strong ${cheaper.smartValueScore.score}/100 Smart Value Score` : 'providing competitive entry pricing';
+    verdictText = `ShopWise Comparison Summary: For budget-conscious shoppers looking for maximum price advantage, ${cheaper.name} is the economical choice, saving ₹${diff.toLocaleString()} while ${cheaperSvsText}. On the other hand, ${premium.name} is better suited for users who value ${premium.brand}'s signature ecosystem, display fidelity, and specific hardware nuances.`;
   }
 
   return (
@@ -236,14 +234,14 @@ export default function CompareModal() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
                     <div style={{ background: 'var(--primary-light)', padding: '8px', borderRadius: '8px', textAlign: 'center' }}>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>
-                        {p.smartValueScore?.score || 92}
+                        {p.smartValueScore?.score ? p.smartValueScore.score : 'N/A'}
                       </div>
                       <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--primary-lavender)' }}>SMART VALUE</div>
                     </div>
 
                     <div style={{ background: 'var(--accent-green-bg)', padding: '8px', borderRadius: '8px', textAlign: 'center' }}>
                       <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-green)' }}>
-                        {p.reviewTrustScore?.score || 94}%
+                        {p.reviewTrustScore?.isScoreAvailable ? `${p.reviewTrustScore.score}%` : 'N/A'}
                       </div>
                       <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--accent-green)' }}>TRUST SCORE</div>
                     </div>

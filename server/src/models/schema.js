@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const initialSeed = require('../data/seedData.json');
 
-// Mongoose Schemas for MongoDB mode
+// Mongoose Schemas for Persistent MongoDB Atlas Collections
 const OfferSchema = new mongoose.Schema({
   store: { type: String, required: true },
   storeLogo: String,
@@ -25,7 +25,7 @@ const PricePointSchema = new mongoose.Schema({
 });
 
 const ProductSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true, unique: true, index: true },
   name: { type: String, required: true },
   brand: { type: String, required: true },
   category: { type: String, required: true },
@@ -47,93 +47,135 @@ const ProductSchema = new mongoose.Schema({
 });
 
 const AlertSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
-  productId: { type: String, required: true },
+  id: { type: String, required: true, unique: true, index: true },
+  productId: { type: String, required: true, index: true },
+  productName: { type: String, required: true },
+  productImage: String,
+  productUrl: String,
+  selectedStore: { type: String, default: 'All Stores' },
+  initialPrice: Number,
+  currentLowestPrice: Number,
+  latestPrice: Number,
+  targetPrice: { type: Number, required: true },
+  currency: { type: String, default: 'INR' },
+  userEmail: { type: String, required: true, lowercase: true, index: true },
+  userId: { type: String, default: null, index: true },
+  status: { 
+    type: String, 
+    enum: ['Active', 'Triggered', 'Paused', 'Expired'], 
+    default: 'Active',
+    index: true 
+  },
+  monitoringStatus: {
+    type: String,
+    enum: ['active', 'paused', 'triggered', 'unavailable'],
+    default: 'active'
+  },
+  lastCheckMessage: String,
+  lastCheckedAt: Date,
+  triggeredAt: Date,
+  notificationStatus: {
+    type: String,
+    enum: ['pending', 'sent', 'failed', 'unconfigured'],
+    default: 'pending'
+  },
+  notificationError: String,
+  notificationSentAt: Date,
+  priceHistory: [{
+    date: { type: Date, default: Date.now },
+    price: Number,
+    store: String,
+    source: String
+  }],
+  createdAt: { type: Date, default: Date.now }
+});
+
+const NotificationSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true, index: true },
+  userId: { type: String, index: true },
+  userEmail: { type: String, required: true, lowercase: true, index: true },
+  alertId: { type: String, index: true },
+  productId: String,
   productName: String,
   productImage: String,
-  currentLowestPrice: Number,
-  targetPrice: { type: Number, required: true },
-  userEmail: { type: String, required: true },
-  userId: { type: String, default: null },
-  status: { type: String, enum: ['Active', 'Triggered', 'Expired'], default: 'Active' },
-  triggeredAt: Date,
+  productUrl: String,
+  store: String,
+  targetPrice: Number,
+  currentPrice: Number,
+  savingsAmount: Number,
+  type: { type: String, default: 'price_drop' },
+  title: String,
+  message: String,
+  read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 
 const UserSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true, unique: true, index: true },
   name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
   password: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
+}, {
+  toJSON: {
+    transform(doc, ret) {
+      delete ret.password;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    }
+  },
+  toObject: {
+    transform(doc, ret) {
+      delete ret.password;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    }
+  }
 });
 
-// Real Mongo Models
+// Compile Mongoose Models
 const MongoProduct = mongoose.model('Product', ProductSchema);
 const MongoAlert = mongoose.model('Alert', AlertSchema);
+const MongoNotification = mongoose.model('Notification', NotificationSchema);
 const MongoUser = mongoose.model('User', UserSchema);
 
-// In-Memory / File-Persisted Fallback Store
-// Deep cloned initial data so mutations don't alter seed file
-let memoryProducts = JSON.parse(JSON.stringify(initialSeed));
-let memoryUsers = [
-  {
-    id: "user-demo-1",
-    name: "Demo Shopper",
-    email: "student@university.edu",
-    password: "$2b$10$0iJf5ZoEizv5sz3fvPU2PuLze.jsoIaWHv5JRna1rk2hsfemOdKjS", // ShopWise123!
-    createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
-  },
-  {
-    id: "user-demo-2",
-    name: "Alex Johnson",
-    email: "alex@shopwise.in",
-    password: "$2b$10$0iJf5ZoEizv5sz3fvPU2PuLze.jsoIaWHv5JRna1rk2hsfemOdKjS", // ShopWise123!
-    createdAt: new Date(Date.now() - 3600000 * 72).toISOString()
+/**
+ * Helper: asserts that MongoDB connection is active
+ */
+function assertDBConnected(operationName = 'operation') {
+  if (mongoose.connection.readyState !== 1) {
+    const err = new Error(`Database connection is unavailable. Cannot execute "${operationName}" without MongoDB persistence.`);
+    err.code = 'DATABASE_UNAVAILABLE';
+    err.status = 503;
+    throw err;
   }
-];
+}
 
-let memoryAlerts = [
-  {
-    id: "alert-demo-1",
-    productId: "iphone-14-128gb",
-    productName: "Apple iPhone 14 (128 GB)",
-    productImage: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80",
-    currentLowestPrice: 49999,
-    targetPrice: 48000,
-    userEmail: "student@university.edu",
-    userId: "user-demo-1",
-    status: "Active",
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "alert-demo-2",
-    productId: "samsung-galaxy-s23-5g",
-    productName: "Samsung Galaxy S23 5G (128 GB)",
-    productImage: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=800&q=80",
-    currentLowestPrice: 48999,
-    targetPrice: 50000,
-    userEmail: "mentor@college.ac.in",
-    userId: null,
-    status: "Triggered",
-    triggeredAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-    createdAt: new Date(Date.now() - 3600000 * 24).toISOString()
-  }
-];
-
-// Unified Data Access Layer (automatically branches based on connection state)
+/**
+ * Persistent Product Data Access Layer (DAL)
+ */
 const ProductDAL = {
   find: async (query = {}) => {
     if (mongoose.connection.readyState === 1) {
-      return await MongoProduct.find(query).lean();
+      const filter = {};
+      if (query.category && query.category !== 'All') {
+        filter.category = new RegExp(`^${query.category}$`, 'i');
+      }
+      if (query.brand && query.brand !== 'All') {
+        filter.brand = new RegExp(`^${query.brand}$`, 'i');
+      }
+      const docs = await MongoProduct.find(filter).lean();
+      if (docs.length > 0) return docs;
     }
-    // Filter memory products
-    return memoryProducts.filter(item => {
+    // Read-only static fallback when MongoDB is unseeded or temporarily offline
+    return initialSeed.filter(item => {
       let matches = true;
       if (query.category && query.category !== 'All') {
         matches = matches && item.category.toLowerCase() === query.category.toLowerCase();
       }
-      if (query.brand) {
+      if (query.brand && query.brand !== 'All') {
         matches = matches && item.brand.toLowerCase() === query.brand.toLowerCase();
       }
       return matches;
@@ -142,11 +184,12 @@ const ProductDAL = {
 
   findOne: async (query) => {
     if (mongoose.connection.readyState === 1) {
-      return await MongoProduct.findOne(query).lean();
+      const doc = await MongoProduct.findOne(query).lean();
+      if (doc) return doc;
     }
-    return memoryProducts.find(item => {
+    return initialSeed.find(item => {
       if (query.id) return item.id === query.id;
-      if (query._id) return item.id === query._id || item._id === query._id;
+      if (query._id) return item.id === query._id;
       return false;
     }) || null;
   },
@@ -155,125 +198,198 @@ const ProductDAL = {
     if (mongoose.connection.readyState === 1) {
       const prod = await MongoProduct.findOne({ id }).lean();
       if (prod) return prod;
-      return await MongoProduct.findById(id).lean();
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        const byOid = await MongoProduct.findById(id).lean();
+        if (byOid) return byOid;
+      }
     }
-    return memoryProducts.find(item => item.id === id) || null;
+    return initialSeed.find(item => item.id === id) || null;
   },
 
   countDocuments: async () => {
     if (mongoose.connection.readyState === 1) {
       return await MongoProduct.countDocuments();
     }
-    return memoryProducts.length;
-  },
-
-  seedMemory: (products) => {
-    memoryProducts = [...products];
+    return initialSeed.length;
   }
 };
 
+/**
+ * Persistent Price Alert Data Access Layer (DAL)
+ * Enforces strict MongoDB persistence to eliminate silent data loss.
+ */
 const AlertDAL = {
   find: async (query = {}) => {
-    if (mongoose.connection.readyState === 1) {
-      const filter = {};
-      if (query.userEmail) {
-        filter.userEmail = query.userEmail.toLowerCase();
-      }
-      if (query.userId) {
-        filter.userId = query.userId;
-      }
-      return await MongoAlert.find(filter).sort({ createdAt: -1 }).lean();
-    }
-    let list = [...memoryAlerts];
+    assertDBConnected('Fetch Alerts');
+    const filter = {};
     if (query.userEmail) {
-      const target = query.userEmail.toLowerCase();
-      list = list.filter(a => a.userEmail && a.userEmail.toLowerCase() === target);
+      filter.userEmail = query.userEmail.toLowerCase();
     }
     if (query.userId) {
-      list = list.filter(a => a.userId === query.userId);
+      filter.userId = query.userId;
     }
-    return list.reverse();
-  },
-
-  create: async (alertData) => {
-    if (mongoose.connection.readyState === 1) {
-      const created = new MongoAlert(alertData);
-      return await created.save();
+    if (query.status) {
+      filter.status = query.status;
     }
-    memoryAlerts.push(alertData);
-    return alertData;
-  },
-
-  delete: async (id) => {
-    if (mongoose.connection.readyState === 1) {
-      return await MongoAlert.findOneAndDelete({ id });
+    if (query.productId) {
+      filter.productId = query.productId;
     }
-    const idx = memoryAlerts.findIndex(a => a.id === id);
-    if (idx !== -1) {
-      const removed = memoryAlerts.splice(idx, 1);
-      return removed[0];
-    }
-    return null;
-  },
-
-  update: async (id, updateData) => {
-    if (mongoose.connection.readyState === 1) {
-      return await MongoAlert.findOneAndUpdate({ id }, updateData, { new: true }).lean();
-    }
-    const alert = memoryAlerts.find(a => a.id === id);
-    if (alert) {
-      Object.assign(alert, updateData);
-      return alert;
-    }
-    return null;
-  }
-};
-
-const UserDAL = {
-  create: async (userData) => {
-    if (mongoose.connection.readyState === 1) {
-      const created = new MongoUser(userData);
-      return await created.save();
-    }
-    memoryUsers.push(userData);
-    return userData;
-  },
-
-  findByEmail: async (email) => {
-    if (!email) return null;
-    const cleanEmail = email.trim().toLowerCase();
-    if (mongoose.connection.readyState === 1) {
-      return await MongoUser.findOne({ email: cleanEmail }).lean();
-    }
-    return memoryUsers.find(u => u.email.toLowerCase() === cleanEmail) || null;
+    return await MongoAlert.find(filter).sort({ createdAt: -1 }).lean();
   },
 
   findById: async (id) => {
+    assertDBConnected('Get Alert By ID');
+    let alert = await MongoAlert.findOne({ id }).lean();
+    if (!alert && mongoose.Types.ObjectId.isValid(id)) {
+      alert = await MongoAlert.findById(id).lean();
+    }
+    return alert;
+  },
+
+  findActive: async () => {
+    assertDBConnected('Fetch Active Alerts');
+    return await MongoAlert.find({ status: 'Active' }).lean();
+  },
+
+  create: async (alertData) => {
+    assertDBConnected('Create Alert');
+    const created = new MongoAlert(alertData);
+    const saved = await created.save();
+    return saved.toObject ? saved.toObject() : saved;
+  },
+
+  delete: async (id) => {
+    assertDBConnected('Delete Alert');
+    let removed = await MongoAlert.findOneAndDelete({ id }).lean();
+    if (!removed && mongoose.Types.ObjectId.isValid(id)) {
+      removed = await MongoAlert.findByIdAndDelete(id).lean();
+    }
+    return removed;
+  },
+
+  update: async (id, updateData) => {
+    assertDBConnected('Update Alert');
+    let updated = await MongoAlert.findOneAndUpdate({ id }, updateData, { new: true }).lean();
+    if (!updated && mongoose.Types.ObjectId.isValid(id)) {
+      updated = await MongoAlert.findByIdAndUpdate(id, updateData, { new: true }).lean();
+    }
+    return updated;
+  },
+
+  pause: async (id) => {
+    assertDBConnected('Pause Alert');
+    return await AlertDAL.update(id, { status: 'Paused', monitoringStatus: 'paused' });
+  },
+
+  resume: async (id) => {
+    assertDBConnected('Resume Alert');
+    return await AlertDAL.update(id, { status: 'Active', monitoringStatus: 'active' });
+  }
+};
+
+/**
+ * Persistent In-App Notifications Data Access Layer (DAL)
+ */
+const NotificationDAL = {
+  find: async (query = {}) => {
+    assertDBConnected('Fetch Notifications');
+    const filter = {};
+    if (query.userEmail) {
+      filter.userEmail = query.userEmail.toLowerCase();
+    }
+    if (query.userId) {
+      filter.userId = query.userId;
+    }
+    if (typeof query.read === 'boolean') {
+      filter.read = query.read;
+    }
+    return await MongoNotification.find(filter).sort({ createdAt: -1 }).limit(50).lean();
+  },
+
+  countUnread: async (userEmail) => {
+    assertDBConnected('Count Unread Notifications');
+    if (!userEmail) return 0;
+    return await MongoNotification.countDocuments({
+      userEmail: userEmail.toLowerCase(),
+      read: false
+    });
+  },
+
+  create: async (data) => {
+    assertDBConnected('Create Notification');
+    const created = new MongoNotification(data);
+    const saved = await created.save();
+    return saved.toObject ? saved.toObject() : saved;
+  },
+
+  markAsRead: async (id, userEmail) => {
+    assertDBConnected('Mark Notification Read');
+    const filter = { id };
+    if (userEmail) filter.userEmail = userEmail.toLowerCase();
+    return await MongoNotification.findOneAndUpdate(filter, { read: true }, { new: true }).lean();
+  },
+
+  markAllAsRead: async (userEmail) => {
+    assertDBConnected('Mark All Notifications Read');
+    if (!userEmail) return { modifiedCount: 0 };
+    return await MongoNotification.updateMany(
+      { userEmail: userEmail.toLowerCase(), read: false },
+      { $set: { read: true } }
+    );
+  },
+
+  delete: async (id, userEmail) => {
+    assertDBConnected('Delete Notification');
+    const filter = { id };
+    if (userEmail) filter.userEmail = userEmail.toLowerCase();
+    return await MongoNotification.findOneAndDelete(filter).lean();
+  }
+};
+
+/**
+ * Persistent User Authentication Data Access Layer (DAL)
+ * Enforces strict MongoDB persistence for all accounts and sessions.
+ */
+const UserDAL = {
+  create: async (userData) => {
+    assertDBConnected('User Registration');
+    const created = new MongoUser(userData);
+    const saved = await created.save();
+    return saved.toObject ? saved.toObject() : saved;
+  },
+
+  findByEmail: async (email) => {
+    assertDBConnected('User Lookup by Email');
+    if (!email) return null;
+    const cleanEmail = email.trim().toLowerCase();
+    return await MongoUser.findOne({ email: cleanEmail }).lean();
+  },
+
+  findById: async (id) => {
+    assertDBConnected('User Lookup by ID');
     if (!id) return null;
-    if (mongoose.connection.readyState === 1) {
-      const u = await MongoUser.findOne({ id }).lean();
-      if (u) return u;
+    const user = await MongoUser.findOne({ id }).lean();
+    if (user) return user;
+    if (mongoose.Types.ObjectId.isValid(id)) {
       return await MongoUser.findById(id).lean();
     }
-    return memoryUsers.find(u => u.id === id) || null;
+    return null;
   },
 
   find: async (query = {}) => {
-    if (mongoose.connection.readyState === 1) {
-      return await MongoUser.find(query).lean();
-    }
-    return [...memoryUsers];
+    assertDBConnected('User List');
+    return await MongoUser.find(query).lean();
   }
 };
 
 module.exports = {
   MongoProduct,
   MongoAlert,
+  MongoNotification,
   MongoUser,
   ProductDAL,
   AlertDAL,
+  NotificationDAL,
   UserDAL,
-  getMemoryProducts: () => memoryProducts,
-  getMemoryAlerts: () => memoryAlerts,
-  getMemoryUsers: () => memoryUsers
+  assertDBConnected
 };

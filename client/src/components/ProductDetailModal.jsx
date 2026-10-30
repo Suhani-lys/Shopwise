@@ -183,12 +183,16 @@ export default function ProductDetailModal() {
 
               {/* Badges */}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <div className="badge-lavender" style={{ padding: '6px 12px' }}>
-                  <Sparkles size={14} /> SVS: {product.smartValueScore?.score || 92}/100
-                </div>
-                <div className="badge-green" style={{ padding: '6px 12px' }}>
-                  <ShieldCheck size={14} /> {product.reviewTrustScore?.score || 94}% Trust
-                </div>
+                {product.smartValueScore?.score ? (
+                  <div className="badge-lavender" style={{ padding: '6px 12px' }}>
+                    <Sparkles size={14} /> SVS: {product.smartValueScore.score}/100
+                  </div>
+                ) : null}
+                {product.reviewTrustScore?.isScoreAvailable ? (
+                  <div className="badge-green" style={{ padding: '6px 12px' }}>
+                    <ShieldCheck size={14} /> {product.reviewTrustScore.score}% Trust
+                  </div>
+                ) : null}
               </div>
 
               {/* Action Buttons */}
@@ -573,55 +577,73 @@ export default function ProductDetailModal() {
           {activeTab === 'trust' && (
             <div>
               <div style={{ marginBottom: '18px' }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Machine Learning Review Trust Audit</h4>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Verifiable Review Trust Evaluation</h4>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  Evaluates review velocity patterns, verified purchase badges, and linguistic diversity.
+                  Evaluates Bayesian-weighted customer ratings, sample volume confidence, and cross-retailer rating consistency.
                 </p>
               </div>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '14px',
-                marginBottom: '20px'
-              }}>
-                <div style={{ background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Trust Confidence Score</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-green)' }}>
-                    {product.reviewTrustScore?.score || 94}%
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Grade: {product.reviewTrustScore?.grade || 'High'}</div>
-                </div>
+              {product.reviewTrustScore?.isScoreAvailable ? (
+                <>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '14px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{ background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Trust Score</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-green)' }}>
+                        {product.reviewTrustScore.score}%
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Grade: {product.reviewTrustScore.grade || 'Verified'}</div>
+                    </div>
 
-                <div style={{ background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Verified Buyers Ratio</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>
-                    {product.reviewTrustScore?.verifiedPurchasePercentage || 92}%
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Authentic order timestamps</div>
-                </div>
+                    <div style={{ background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Sample Volume</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>
+                        {Number(product.reviewTrustScore.totalReviewsAnalyzed || product.reviewCount || 0).toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{product.reviewTrustScore.sampleTier || 'Recorded ratings'}</div>
+                    </div>
 
-                <div style={{ background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Bot Anomaly Pattern Risk</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-green)' }}>
-                    {product.reviewTrustScore?.botPatternRisk || 'Low'}
+                    <div style={{ background: 'var(--bg-card-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Signal Confidence</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-green)' }}>
+                        {product.reviewTrustScore.confidence || 'Medium'}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Verified data points</div>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Minimal duplicate wording</div>
-                </div>
-              </div>
 
-              <div style={{
-                background: 'var(--bg-card-subtle)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-md)',
-                padding: '16px',
-                fontSize: '0.875rem',
-                color: 'var(--text-secondary)',
-                lineHeight: 1.6
-              }}>
-                <strong>Trust Audit Explanation: </strong>
-                {product.reviewTrustScore?.confidenceVerdict || "Reviews on this product display healthy statistical variance across rating distributions and no abnormal bot spikes."}
-              </div>
+                  <div style={{
+                    background: 'var(--bg-card-subtle)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '16px',
+                    fontSize: '0.875rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6
+                  }}>
+                    <strong>Methodology & Explanation: </strong>
+                    {product.reviewTrustScore.methodology || product.reviewTrustScore.confidenceVerdict}
+                  </div>
+                </>
+              ) : (
+                <div style={{
+                  background: 'var(--bg-card-subtle)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '28px 20px',
+                  textAlign: 'center'
+                }}>
+                  <ShieldCheck size={28} color="var(--text-muted)" style={{ margin: '0 auto 10px auto' }} />
+                  <h5 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px' }}>Trust Score Unavailable</h5>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '440px', margin: '0 auto', lineHeight: 1.5 }}>
+                    {product.reviewTrustScore?.confidenceVerdict || 'Requires at least 5 verified customer ratings from authorized retailers to compute a statistically reliable Trust Score without speculation.'}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

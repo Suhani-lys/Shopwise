@@ -18,7 +18,12 @@ import {
   RefreshCw,
   Info,
   Check,
-  ShoppingBag
+  ShoppingBag,
+  Pause,
+  Play,
+  CheckCheck,
+  Mail,
+  BellRing
 } from 'lucide-react';
 
 export default function PriceAlertsPage() {
@@ -30,6 +35,15 @@ export default function PriceAlertsPage() {
     createAlert, 
     updateAlert, 
     deleteAlert, 
+    pauseAlert,
+    resumeAlert,
+    checkAlertsNow,
+    notifications,
+    unreadNotificationsCount,
+    fetchNotifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+    dismissNotification,
     allProducts, 
     navigateToProduct, 
     navigateToSearch, 
@@ -39,6 +53,8 @@ export default function PriceAlertsPage() {
     navigateToLogin,
     navigateToSignUp
   } = useShopwise();
+
+  const [isCheckingPrices, setIsCheckingPrices] = useState(false);
 
   // Modal States
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -73,25 +89,49 @@ export default function PriceAlertsPage() {
     return '₹' + Number(val).toLocaleString('en-IN');
   };
 
+  // Helper for human-readable time elapsed
+  const formatCheckTime = (timestamp) => {
+    if (!timestamp) return 'Pending initial check';
+    const diffMs = Date.now() - new Date(timestamp).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    return new Date(timestamp).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
   // Section 3: Savings Summary Metrics
   const summaryMetrics = useMemo(() => {
     const total = alerts.length;
     const active = alerts.filter(a => a.status === 'Active').length;
+    const paused = alerts.filter(a => a.status === 'Paused').length;
     const reached = alerts.filter(a => a.status === 'Triggered').length;
-
-    // Price Drops: alerts where current price has dropped below target price or is triggered
     const priceDrops = alerts.filter(a => {
-      if (a.status === 'Triggered') return true;
-      if (a.currentLowestPrice && a.targetPrice && a.currentLowestPrice <= a.targetPrice) return true;
-      return false;
+      const cur = a.latestPrice || a.currentLowestPrice;
+      return cur && a.targetPrice && cur <= a.targetPrice;
     }).length;
 
-    return { total, active, priceDrops, reached };
+    // Total savings across triggered alerts
+    const totalSavings = alerts
+      .filter(a => a.status === 'Triggered' && a.targetPrice && (a.latestPrice || a.currentLowestPrice) && a.targetPrice >= (a.latestPrice || a.currentLowestPrice))
+      .reduce((sum, a) => sum + (a.targetPrice - (a.latestPrice || a.currentLowestPrice)), 0);
+
+    return { total, active, paused, reached, priceDrops, totalSavings, unreadNotifs: unreadNotificationsCount };
+  }, [alerts, unreadNotificationsCount]);
+
+  // Combined Tracked Alerts (Active and Paused)
+  const trackedAlerts = useMemo(() => {
+    return alerts.filter(a => a.status === 'Active' || a.status === 'Paused');
   }, [alerts]);
 
-  // Separate Active and Triggered Alerts
+  // Separate Active, Paused, and Triggered Alerts
   const activeAlerts = useMemo(() => {
     return alerts.filter(a => a.status === 'Active');
+  }, [alerts]);
+
+  const pausedAlerts = useMemo(() => {
+    return alerts.filter(a => a.status === 'Paused');
   }, [alerts]);
 
   const triggeredAlerts = useMemo(() => {
@@ -250,6 +290,30 @@ export default function PriceAlertsPage() {
         <div className="alerts-header-actions">
           <button
             type="button"
+            id="check-prices-now-btn"
+            onClick={async () => {
+              setIsCheckingPrices(true);
+              try {
+                await checkAlertsNow();
+              } finally {
+                setIsCheckingPrices(false);
+              }
+            }}
+            className="btn-secondary alerts-refresh-btn"
+            title="Trigger autonomous price check cycle across all stores now"
+            disabled={isCheckingPrices || alertsLoading}
+            style={{
+              borderColor: 'rgba(124, 58, 237, 0.35)',
+              color: 'var(--primary-lavender)',
+              backgroundColor: 'rgba(124, 58, 237, 0.05)'
+            }}
+          >
+            <Sparkles size={15} className={isCheckingPrices ? 'animate-spin' : ''} />
+            <span>{isCheckingPrices ? 'Checking...' : 'Check Prices Now'}</span>
+          </button>
+
+          <button
+            type="button"
             id="refresh-alerts-btn"
             onClick={fetchAlerts}
             className="btn-secondary alerts-refresh-btn"
@@ -344,376 +408,628 @@ export default function PriceAlertsPage() {
         </section>
       ) : (
         <>
-          {/* 3. Savings Summary: 3 Compact Cards */}
-          <section className="alerts-summary-grid" aria-label="Alerts summary statistics">
-        {/* Active Alerts */}
-        <div className="alert-stat-card clean-card">
-          <div className="stat-card-header">
-            <span className="stat-card-label">Active Alerts</span>
-            <div className="stat-icon-circle lavender">
-              <Bell size={16} />
-            </div>
-          </div>
-          <div className="stat-card-value" id="stat-active-alerts">
-            {summaryMetrics.active}
-          </div>
-          <div className="stat-card-subtext">Currently monitored items</div>
-        </div>
-
-        {/* Price Drops */}
-        <div className="alert-stat-card clean-card">
-          <div className="stat-card-header">
-            <span className="stat-card-label">Price Drops</span>
-            <div className="stat-icon-circle green">
-              <TrendingDown size={16} />
-            </div>
-          </div>
-          <div className="stat-card-value text-green" id="stat-price-drops">
-            {summaryMetrics.priceDrops}
-          </div>
-          <div className="stat-card-subtext">Items at or below target</div>
-        </div>
-
-        {/* Alerts Reached */}
-        <div className="alert-stat-card clean-card">
-          <div className="stat-card-header">
-            <span className="stat-card-label">Alerts Reached</span>
-            <div className="stat-icon-circle amber">
-              <CheckCircle2 size={16} />
-            </div>
-          </div>
-          <div className="stat-card-value" id="stat-alerts-reached">
-            {summaryMetrics.reached}
-          </div>
-          <div className="stat-card-subtext">Deals verified & ready</div>
-        </div>
-      </section>
-
-      {/* Loading Skeleton */}
-      {alertsLoading && alerts.length === 0 && (
-        <div className="alerts-loading-skeleton">
-          <div className="skeleton-card skeleton-pulse" />
-          <div className="skeleton-card skeleton-pulse" />
-        </div>
-      )}
-
-      {/* 8. Helpful Empty State: 0 Alerts */}
-      {!alertsLoading && alerts.length === 0 && (
-        <section className="alerts-empty-state clean-card" aria-label="No price alerts">
-          <div className="alerts-empty-icon-circle">
-            <Bell size={36} color="var(--primary-lavender)" />
-          </div>
-          <h2 className="alerts-empty-heading">No price alerts yet</h2>
-          <p className="alerts-empty-text">
-            Track a product and we'll help you spot the right time to buy.
-          </p>
-          <div className="alerts-empty-actions">
-            <button
-              type="button"
-              id="empty-find-products-btn"
-              onClick={navigateToSearch}
-              className="btn-lavender"
-            >
-              <Search size={16} />
-              <span>Find Products</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOpenCreateModal()}
-              className="btn-secondary"
-            >
-              <Plus size={16} />
-              <span>Create Alert</span>
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* 5. Active Alerts ("Your Tracked Products") */}
-      {activeAlerts.length > 0 && (
-        <section className="alerts-section" aria-label="Your Tracked Products">
-          <div className="alerts-section-header">
-            <div>
-              <h2 className="alerts-section-title">Your Tracked Products</h2>
-              <p className="alerts-section-subtitle">
-                Active alerts with live price monitoring and drop distance calculations.
-              </p>
-            </div>
-            <span className="section-badge-pill">{activeAlerts.length} Active</span>
-          </div>
-
-          <div className="alerts-cards-grid">
-            {activeAlerts.map((alert) => {
-              const currentPrice = Number(alert.currentLowestPrice) || 0;
-              const targetPrice = Number(alert.targetPrice) || 0;
-              const diff = currentPrice - targetPrice;
-              const diffPercent = currentPrice > 0 ? ((diff / currentPrice) * 100).toFixed(1) : 0;
-              
-              // Mathematically sound progress indicator:
-              // How close target is relative to current price (percentage)
-              const proximityPercent = currentPrice > 0 
-                ? Math.min(100, Math.max(10, Math.round((targetPrice / currentPrice) * 100))) 
-                : 100;
-
-              // Format human-readable date
-              const createdDate = alert.createdAt 
-                ? new Date(alert.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
-                : 'Recently';
-
-              return (
-                <article key={alert.id} className="alert-item-card clean-card" id={`alert-card-${alert.id}`}>
-                  {/* Card Header: Status & Actions */}
-                  <div className="alert-card-header">
-                    <span className="alert-status-pill active" title="Monitoring real-time store prices">
-                      <Clock size={12} />
-                      <span>Active</span>
-                    </span>
-
-                    <div className="alert-card-action-btns">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEditModal(alert)}
-                        className="alert-icon-btn edit-btn"
-                        title="Edit target price"
-                        aria-label={`Edit target price for ${alert.productName}`}
-                      >
-                        <Pencil size={14} />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleOpenDeleteModal(alert)}
-                        className="alert-icon-btn delete-btn"
-                        title="Delete alert"
-                        aria-label={`Delete price alert for ${alert.productName}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+          {/* In-App Notifications Feed */}
+          {notifications && notifications.length > 0 && (
+            <section className="notifications-feed-card" aria-label="Recent price drop notifications">
+              <div className="notifications-feed-header">
+                <div className="notifications-feed-title-wrap">
+                  <div className="notifications-feed-icon-circle">
+                    <BellRing size={16} />
                   </div>
+                  <div>
+                    <h2 className="notifications-feed-title">Price Drop Notifications</h2>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      Functional in-app alerts triggered when store prices meet your target
+                    </span>
+                  </div>
+                  {unreadNotificationsCount > 0 && (
+                    <span className="notifications-unread-pill">{unreadNotificationsCount} New</span>
+                  )}
+                </div>
 
-                  {/* Product Details Row */}
-                  <div className="alert-card-product-row">
-                    <div 
-                      className="alert-product-image-box"
-                      onClick={() => navigateToProduct(alert.productId)}
-                      role="button"
-                      tabIndex={0}
-                      title="View product details"
-                    >
-                      {alert.productImage ? (
-                        <img 
-                          src={alert.productImage} 
-                          alt={alert.productName} 
-                          className="alert-product-img"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.parentElement.classList.add('image-fallback');
+                {unreadNotificationsCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={markAllNotificationsRead}
+                    className="btn-secondary"
+                    style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                  >
+                    <CheckCheck size={14} />
+                    <span>Mark All Read</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="notifications-list">
+                {notifications.slice(0, 5).map((notif) => (
+                  <div key={notif.id} className={`notification-item ${!notif.read ? 'unread' : ''}`}>
+                    <div className="notification-left">
+                      {!notif.read && <div className="notification-unread-dot" title="Unread" />}
+                      <div className="notification-content">
+                        <div className="notification-title-row">
+                          <span className="notification-product-title">{notif.title}</span>
+                          {notif.store && <span className="notification-store-badge">{notif.store}</span>}
+                        </div>
+                        <p className="notification-desc">{notif.message}</p>
+                        <span className="notification-time">{formatCheckTime(notif.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className="notification-actions">
+                      {notif.productUrl ? (
+                        <a 
+                          href={notif.productUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          onClick={() => markNotificationRead(notif.id)}
+                          className="notification-deal-btn"
+                          title="Open verified store deal"
+                        >
+                          <span>View Deal</span>
+                          <ExternalLink size={12} />
+                        </a>
+                      ) : notif.productId ? (
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            markNotificationRead(notif.id);
+                            navigateToProduct(notif.productId);
                           }}
-                        />
-                      ) : (
-                        <ShoppingBag size={24} color="var(--primary-lavender)" />
-                      )}
-                    </div>
+                          className="notification-deal-btn"
+                        >
+                          <span>View Details</span>
+                          <ChevronRight size={12} />
+                        </button>
+                      ) : null}
 
-                    <div className="alert-product-info">
-                      <h3 
-                        className="alert-product-name clickable"
-                        onClick={() => navigateToProduct(alert.productId)}
-                        title={alert.productName}
+                      <button
+                        type="button"
+                        onClick={() => dismissNotification(notif.id)}
+                        className="notification-dismiss-btn"
+                        title="Dismiss notification"
+                        aria-label="Dismiss notification"
                       >
-                        {alert.productName}
-                      </h3>
-                      <div className="alert-notification-meta">
-                        <span>Notify: {alert.userEmail || 'In-app account'}</span>
-                      </div>
+                        <X size={14} />
+                      </button>
                     </div>
                   </div>
+                ))}
+              </div>
+            </section>
+          )}
 
-                  {/* Price Comparison Row */}
-                  <div className="alert-prices-grid">
-                    <div className="alert-price-block">
-                      <span className="price-block-label">Current Lowest</span>
-                      <span className="price-block-value current">
-                        {formatINR(currentPrice)}
-                      </span>
-                    </div>
-
-                    <div className="alert-price-divider" />
-
-                    <div className="alert-price-block">
-                      <span className="price-block-label">Your Target</span>
-                      <span className="price-block-value target">
-                        {formatINR(targetPrice)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Price Drop Difference Calculation */}
-                  <div className="alert-difference-box">
-                    {diff > 0 ? (
-                      <div className="diff-info-row">
-                        <span className="diff-label">Price must fall by:</span>
-                        <span className="diff-amount">
-                          {formatINR(diff)} ({diffPercent}%)
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="diff-info-row reached">
-                        <span className="diff-label">Target met! Ready to purchase:</span>
-                        <span className="diff-amount text-green">
-                          {formatINR(Math.abs(diff))} below target
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Proximity Progress Bar */}
-                    <div className="alert-progress-wrapper" title={`Target is ${proximityPercent}% of current lowest price`}>
-                      <div className="alert-progress-track">
-                        <div 
-                          className="alert-progress-fill" 
-                          style={{ width: `${proximityPercent}%` }} 
-                        />
-                      </div>
-                      <span className="alert-progress-text">
-                        {proximityPercent}% proximity to target
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Footer: Metadata & Inspect Button */}
-                  <div className="alert-card-footer">
-                    <span className="alert-time-text">Created: {createdDate}</span>
-                    <button
-                      type="button"
-                      onClick={() => navigateToProduct(alert.productId)}
-                      className="btn-secondary alert-view-deal-btn"
-                    >
-                      <span>View Details</span>
-                      <ChevronRight size={14} />
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* 6. Alert Status and History: "Recently Triggered" */}
-      {triggeredAlerts.length > 0 && (
-        <section className="alerts-section" aria-label="Recently Triggered Alerts">
-          <div className="alerts-section-header">
-            <div>
-              <h2 className="alerts-section-title">Recently Triggered Deals</h2>
-              <p className="alerts-section-subtitle">
-                Deals where the store price reached or passed your target.
-              </p>
+          {/* 3. Savings Summary: 4 Clean Metrics Cards */}
+          <section className="alerts-summary-grid" aria-label="Alerts summary statistics" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
+            {/* Active Alerts */}
+            <div className="alert-stat-card clean-card">
+              <div className="stat-card-header">
+                <span className="stat-card-label">Active Alerts</span>
+                <div className="stat-icon-circle lavender">
+                  <Bell size={16} />
+                </div>
+              </div>
+              <div className="stat-card-value" id="stat-active-alerts">
+                {summaryMetrics.active}
+              </div>
+              <div className="stat-card-subtext">Currently monitored items</div>
             </div>
-            <span className="section-badge-pill green">{triggeredAlerts.length} Met</span>
-          </div>
 
-          <div className="alerts-cards-grid">
-            {triggeredAlerts.map((alert) => {
-              const currentPrice = Number(alert.currentLowestPrice) || 0;
-              const targetPrice = Number(alert.targetPrice) || 0;
-              const savings = targetPrice >= currentPrice ? (targetPrice - currentPrice) : 0;
-              
-              const triggeredDate = alert.triggeredAt 
-                ? new Date(alert.triggeredAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-                : (alert.createdAt ? new Date(alert.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently');
+            {/* Paused Alerts */}
+            <div className="alert-stat-card clean-card">
+              <div className="stat-card-header">
+                <span className="stat-card-label">Paused Alerts</span>
+                <div className="stat-icon-circle" style={{ backgroundColor: '#FEF3C7', color: '#B45309' }}>
+                  <Pause size={16} />
+                </div>
+              </div>
+              <div className="stat-card-value" id="stat-paused-alerts">
+                {summaryMetrics.paused}
+              </div>
+              <div className="stat-card-subtext">Monitoring paused by you</div>
+            </div>
 
-              return (
-                <article key={alert.id} className="alert-item-card clean-card triggered-border" id={`triggered-card-${alert.id}`}>
-                  {/* Status & Delete */}
-                  <div className="alert-card-header">
-                    <span className="alert-status-pill triggered">
-                      <CheckCircle2 size={13} />
-                      <span>Target Reached</span>
+            {/* Alerts Reached */}
+            <div className="alert-stat-card clean-card">
+              <div className="stat-card-header">
+                <span className="stat-card-label">Target Reached</span>
+                <div className="stat-icon-circle amber">
+                  <CheckCircle2 size={16} />
+                </div>
+              </div>
+              <div className="stat-card-value" id="stat-alerts-reached">
+                {summaryMetrics.reached}
+              </div>
+              <div className="stat-card-subtext">Deals verified & triggered</div>
+            </div>
+
+            {/* Total Savings */}
+            <div className="alert-stat-card clean-card">
+              <div className="stat-card-header">
+                <span className="stat-card-label">Total Savings</span>
+                <div className="stat-icon-circle green">
+                  <TrendingDown size={16} />
+                </div>
+              </div>
+              <div className="stat-card-value text-green" id="stat-total-savings">
+                {formatINR(summaryMetrics.totalSavings)}
+              </div>
+              <div className="stat-card-subtext">Verified price drop savings</div>
+            </div>
+          </section>
+
+          {/* Loading Skeleton */}
+          {alertsLoading && alerts.length === 0 && (
+            <div className="alerts-loading-skeleton">
+              <div className="skeleton-card skeleton-pulse" />
+              <div className="skeleton-card skeleton-pulse" />
+            </div>
+          )}
+
+          {/* 8. Helpful Empty State: 0 Alerts */}
+          {!alertsLoading && alerts.length === 0 && (
+            <section className="alerts-empty-state clean-card" aria-label="No price alerts">
+              <div className="alerts-empty-icon-circle">
+                <Bell size={36} color="var(--primary-lavender)" />
+              </div>
+              <h2 className="alerts-empty-heading">No price alerts yet</h2>
+              <p className="alerts-empty-text">
+                Track a product and we'll help you spot the right time to buy.
+              </p>
+              <div className="alerts-empty-actions">
+                <button
+                  type="button"
+                  id="empty-find-products-btn"
+                  onClick={navigateToSearch}
+                  className="btn-lavender"
+                >
+                  <Search size={16} />
+                  <span>Find Products</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenCreateModal()}
+                  className="btn-secondary"
+                >
+                  <Plus size={16} />
+                  <span>Create Alert</span>
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* 5. Tracked Products (Active & Paused Alerts) */}
+          {trackedAlerts.length > 0 && (
+            <section className="alerts-section" aria-label="Your Tracked Products">
+              <div className="alerts-section-header">
+                <div>
+                  <h2 className="alerts-section-title">Your Tracked Products</h2>
+                  <p className="alerts-section-subtitle">
+                    Autonomous price monitoring across Indian stores with verified price drop detection.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <span className="section-badge-pill">{summaryMetrics.active} Active</span>
+                  {summaryMetrics.paused > 0 && (
+                    <span className="section-badge-pill" style={{ backgroundColor: '#FEF3C7', color: '#B45309' }}>
+                      {summaryMetrics.paused} Paused
                     </span>
+                  )}
+                </div>
+              </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenDeleteModal(alert)}
-                      className="alert-icon-btn delete-btn"
-                      title="Dismiss alert"
-                      aria-label={`Dismiss alert for ${alert.productName}`}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+              <div className="alerts-cards-grid">
+                {trackedAlerts.map((alert) => {
+                  const currentPrice = Number(alert.latestPrice || alert.currentLowestPrice) || 0;
+                  const targetPrice = Number(alert.targetPrice) || 0;
+                  const diff = currentPrice - targetPrice;
+                  const diffPercent = currentPrice > 0 ? ((diff / currentPrice) * 100).toFixed(1) : 0;
+                  
+                  const proximityPercent = currentPrice > 0 
+                    ? Math.min(100, Math.max(10, Math.round((targetPrice / currentPrice) * 100))) 
+                    : 100;
 
-                  {/* Product Details */}
-                  <div className="alert-card-product-row">
-                    <div 
-                      className="alert-product-image-box"
-                      onClick={() => navigateToProduct(alert.productId)}
-                      role="button"
-                      tabIndex={0}
-                      title="View product details"
-                    >
-                      {alert.productImage ? (
-                        <img 
-                          src={alert.productImage} 
-                          alt={alert.productName} 
-                          className="alert-product-img"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <ShoppingBag size={24} color="var(--accent-green)" />
-                      )}
-                    </div>
+                  const createdDate = alert.createdAt 
+                    ? new Date(alert.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : 'Recently';
 
-                    <div className="alert-product-info">
-                      <h3 
-                        className="alert-product-name clickable"
-                        onClick={() => navigateToProduct(alert.productId)}
-                        title={alert.productName}
-                      >
-                        {alert.productName}
-                      </h3>
-                      <div className="alert-notification-meta">
-                        <span className="text-green font-semibold">
-                          Target met: {formatINR(targetPrice)}
+                  const isPaused = alert.status === 'Paused';
+                  const isCheckStale = alert.lastCheckedAt && (Date.now() - new Date(alert.lastCheckedAt).getTime() > 24 * 60 * 60 * 1000);
+                  const isUnavailable = alert.monitoringStatus === 'unavailable';
+
+                  return (
+                    <article key={alert.id} className="alert-item-card clean-card" id={`alert-card-${alert.id}`}>
+                      {/* Card Header: Status & Actions */}
+                      <div className="alert-card-header">
+                        {isPaused ? (
+                          <span className="alert-status-pill paused" title="Price monitoring is paused">
+                            <Pause size={12} />
+                            <span>Paused</span>
+                          </span>
+                        ) : isUnavailable ? (
+                          <span className="alert-status-pill unavailable" title={alert.lastCheckMessage || 'Provider unavailable for live monitoring'}>
+                            <AlertCircle size={12} />
+                            <span>Unavailable</span>
+                          </span>
+                        ) : isCheckStale ? (
+                          <span className="alert-status-pill delayed" title="Latest price check is delayed">
+                            <Clock size={12} />
+                            <span>Check Delayed</span>
+                          </span>
+                        ) : (
+                          <span className="alert-status-pill active" title="Active live store price monitoring">
+                            <Sparkles size={12} />
+                            <span>Actively Monitored</span>
+                          </span>
+                        )}
+
+                        <div className="alert-card-action-btns">
+                          {isPaused ? (
+                            <button
+                              type="button"
+                              onClick={() => resumeAlert(alert.id)}
+                              className="alert-icon-btn resume-btn"
+                              title="Resume price monitoring"
+                              aria-label={`Resume price monitoring for ${alert.productName}`}
+                            >
+                              <Play size={14} />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => pauseAlert(alert.id)}
+                              className="alert-icon-btn pause-btn"
+                              title="Pause price monitoring"
+                              aria-label={`Pause price monitoring for ${alert.productName}`}
+                            >
+                              <Pause size={14} />
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditModal(alert)}
+                            className="alert-icon-btn edit-btn"
+                            title="Edit target price"
+                            aria-label={`Edit target price for ${alert.productName}`}
+                          >
+                            <Pencil size={14} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDeleteModal(alert)}
+                            className="alert-icon-btn delete-btn"
+                            title="Delete alert"
+                            aria-label={`Delete price alert for ${alert.productName}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Product Details Row */}
+                      <div className="alert-card-product-row">
+                        <div 
+                          className="alert-product-image-box"
+                          onClick={() => navigateToProduct(alert.productId)}
+                          role="button"
+                          tabIndex={0}
+                          title="View product details"
+                        >
+                          {alert.productImage ? (
+                            <img 
+                              src={alert.productImage} 
+                              alt={alert.productName} 
+                              className="alert-product-img"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.parentElement.classList.add('image-fallback');
+                              }}
+                            />
+                          ) : (
+                            <ShoppingBag size={24} color="var(--primary-lavender)" />
+                          )}
+                        </div>
+
+                        <div className="alert-product-info">
+                          <h3 
+                            className="alert-product-name clickable"
+                            onClick={() => navigateToProduct(alert.productId)}
+                            title={alert.productName}
+                          >
+                            {alert.productName}
+                          </h3>
+
+                          <div className="alert-meta-badges">
+                            <span className="alert-store-pill">
+                              <ShoppingBag size={11} />
+                              <span>Store: {alert.selectedStore || 'All Stores'}</span>
+                            </span>
+
+                            {alert.notificationStatus === 'sent' && (
+                              <span className="alert-delivery-pill sent" title="Notifications delivered via Email & In-App">
+                                <Mail size={11} />
+                                <span>Delivered</span>
+                              </span>
+                            )}
+                            {alert.notificationStatus === 'unconfigured' && (
+                              <span className="alert-delivery-pill unconfigured" title="In-App notification delivered (SMTP email not configured)">
+                                <Bell size={11} />
+                                <span>In-App Active</span>
+                              </span>
+                            )}
+                            {alert.notificationStatus === 'failed' && (
+                              <span className="alert-delivery-pill failed" title="Notification delivery failed">
+                                <AlertCircle size={11} />
+                                <span>Delivery Failed</span>
+                              </span>
+                            )}
+                            {(!alert.notificationStatus || alert.notificationStatus === 'pending') && (
+                              <span className="alert-delivery-pill pending" title="Ready to notify when target met">
+                                <Clock size={11} />
+                                <span>Tracking</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price Comparison Row */}
+                      <div className="alert-prices-grid">
+                        <div className="alert-price-block">
+                          <span className="price-block-label">Latest Verified</span>
+                          <span className="price-block-value current">
+                            {formatINR(currentPrice)}
+                          </span>
+                        </div>
+
+                        <div className="alert-price-divider" />
+
+                        <div className="alert-price-block">
+                          <span className="price-block-label">Your Target</span>
+                          <span className="price-block-value target">
+                            {formatINR(targetPrice)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Price Drop Difference Calculation */}
+                      <div className="alert-difference-box">
+                        {diff > 0 ? (
+                          <div className="diff-info-row">
+                            <span className="diff-label">Price must fall by:</span>
+                            <span className="diff-amount">
+                              {formatINR(diff)} ({diffPercent}%)
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="diff-info-row reached">
+                            <span className="diff-label">Target met! Ready to purchase:</span>
+                            <span className="diff-amount text-green">
+                              {formatINR(Math.abs(diff))} below target
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Proximity Progress Bar */}
+                        <div className="alert-progress-wrapper" title={`Target is ${proximityPercent}% of current price`}>
+                          <div className="alert-progress-track">
+                            <div 
+                              className="alert-progress-fill" 
+                              style={{ width: `${proximityPercent}%` }} 
+                            />
+                          </div>
+                          <span className="alert-progress-text">
+                            {proximityPercent}% proximity to target
+                          </span>
+                        </div>
+
+                        {/* Last Checked Row */}
+                        <div className="alert-last-checked-row">
+                          <span>Last checked: {formatCheckTime(alert.lastCheckedAt)}</span>
+                          {alert.initialPrice && (
+                            <span>Initial: {formatINR(alert.initialPrice)}</span>
+                          )}
+                        </div>
+
+                        {/* Provider Warning Note if unavailable */}
+                        {isUnavailable && alert.lastCheckMessage && (
+                          <div className="alert-provider-note">
+                            <Info size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                            {alert.lastCheckMessage}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Card Footer: Metadata & Inspect Button */}
+                      <div className="alert-card-footer">
+                        <span className="alert-time-text">Created: {createdDate}</span>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {alert.productUrl && (
+                            <a
+                              href={alert.productUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-secondary alert-view-deal-btn"
+                              title="View offer directly on merchant store"
+                              style={{ textDecoration: 'none' }}
+                            >
+                              <span>Store Link</span>
+                              <ExternalLink size={13} />
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => navigateToProduct(alert.productId)}
+                            className="btn-secondary alert-view-deal-btn"
+                          >
+                            <span>Details</span>
+                            <ChevronRight size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* 6. Alert Status and History: "Recently Triggered" */}
+          {triggeredAlerts.length > 0 && (
+            <section className="alerts-section" aria-label="Recently Triggered Alerts">
+              <div className="alerts-section-header">
+                <div>
+                  <h2 className="alerts-section-title">Recently Triggered Deals</h2>
+                  <p className="alerts-section-subtitle">
+                    Verified deals where store prices reached or fell below your target.
+                  </p>
+                </div>
+                <span className="section-badge-pill green">{triggeredAlerts.length} Met</span>
+              </div>
+
+              <div className="alerts-cards-grid">
+                {triggeredAlerts.map((alert) => {
+                  const currentPrice = Number(alert.latestPrice || alert.currentLowestPrice) || 0;
+                  const targetPrice = Number(alert.targetPrice) || 0;
+                  const savings = targetPrice >= currentPrice ? (targetPrice - currentPrice) : 0;
+                  
+                  const triggeredDate = alert.triggeredAt 
+                    ? new Date(alert.triggeredAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : (alert.createdAt ? new Date(alert.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently');
+
+                  return (
+                    <article key={alert.id} className="alert-item-card clean-card triggered-border" id={`triggered-card-${alert.id}`}>
+                      {/* Status & Delete */}
+                      <div className="alert-card-header">
+                        <span className="alert-status-pill triggered">
+                          <CheckCircle2 size={13} />
+                          <span>Target Reached</span>
                         </span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Triggered Success Callout */}
-                  <div className="triggered-success-callout">
-                    <div className="triggered-savings-row">
-                      <span className="triggered-price-label">Price When Triggered:</span>
-                      <strong className="triggered-price-val">{formatINR(currentPrice)}</strong>
-                    </div>
-                    {savings > 0 && (
-                      <div className="savings-achieved-text">
-                        Extra savings of {formatINR(savings)} below your target!
+                        <div className="alert-card-action-btns">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDeleteModal(alert)}
+                            className="alert-icon-btn delete-btn"
+                            title="Dismiss alert"
+                            aria-label={`Dismiss alert for ${alert.productName}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
-                    )}
-                    <div className="triggered-timestamp-text">
-                      Triggered on: {triggeredDate}
-                    </div>
-                  </div>
 
-                  {/* Footer Action */}
-                  <div className="alert-card-footer">
-                    <button
-                      type="button"
-                      onClick={() => navigateToProduct(alert.productId, 'prices')}
-                      className="btn-lavender alert-inspect-deal-btn"
-                    >
-                      <span>Inspect Store Offers</span>
-                      <ExternalLink size={14} />
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-      )}
+                      {/* Product Details */}
+                      <div className="alert-card-product-row">
+                        <div 
+                          className="alert-product-image-box"
+                          onClick={() => navigateToProduct(alert.productId)}
+                          role="button"
+                          tabIndex={0}
+                          title="View product details"
+                        >
+                          {alert.productImage ? (
+                            <img 
+                              src={alert.productImage} 
+                              alt={alert.productName} 
+                              className="alert-product-img"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <ShoppingBag size={24} color="var(--accent-green)" />
+                          )}
+                        </div>
+
+                        <div className="alert-product-info">
+                          <h3 
+                            className="alert-product-name clickable"
+                            onClick={() => navigateToProduct(alert.productId)}
+                            title={alert.productName}
+                          >
+                            {alert.productName}
+                          </h3>
+
+                          <div className="alert-meta-badges">
+                            <span className="alert-store-pill">
+                              <ShoppingBag size={11} />
+                              <span>Store: {alert.selectedStore || 'All Stores'}</span>
+                            </span>
+
+                            {alert.notificationStatus === 'sent' && (
+                              <span className="alert-delivery-pill sent" title="Notifications delivered via Email & In-App">
+                                <Mail size={11} />
+                                <span>Delivered</span>
+                              </span>
+                            )}
+                            {alert.notificationStatus === 'unconfigured' && (
+                              <span className="alert-delivery-pill unconfigured" title="In-App notification delivered (SMTP email not configured)">
+                                <Bell size={11} />
+                                <span>In-App Active</span>
+                              </span>
+                            )}
+                            {alert.notificationStatus === 'failed' && (
+                              <span className="alert-delivery-pill failed" title="Notification delivery failed">
+                                <AlertCircle size={11} />
+                                <span>Delivery Failed</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Triggered Success Callout */}
+                      <div className="triggered-success-callout">
+                        <div className="triggered-savings-row">
+                          <span className="triggered-price-label">Verified Price:</span>
+                          <strong className="triggered-price-val">{formatINR(currentPrice)}</strong>
+                        </div>
+                        <div className="triggered-savings-row" style={{ marginTop: '4px' }}>
+                          <span className="triggered-price-label">Your Target:</span>
+                          <strong className="triggered-price-val" style={{ color: 'var(--primary-lavender)' }}>{formatINR(targetPrice)}</strong>
+                        </div>
+                        {savings > 0 && (
+                          <div className="savings-achieved-text" style={{ marginTop: '8px' }}>
+                            Extra savings of {formatINR(savings)} below your target!
+                          </div>
+                        )}
+                        <div className="triggered-timestamp-text" style={{ marginTop: '6px' }}>
+                          Triggered on: {triggeredDate}
+                        </div>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="alert-card-footer">
+                        {alert.productUrl ? (
+                          <a
+                            href={alert.productUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-lavender alert-inspect-deal-btn"
+                            title="Open direct store deal"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <span>Buy at Store</span>
+                            <ExternalLink size={14} />
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => navigateToProduct(alert.productId, 'prices')}
+                            className="btn-lavender alert-inspect-deal-btn"
+                          >
+                            <span>Inspect Store Offers</span>
+                            <ChevronRight size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )}
         </>
       )}
 

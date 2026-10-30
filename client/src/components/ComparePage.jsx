@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useShopwise } from '../context/ShopwiseContext';
+import { API_BASE_URL } from '../config/api';
 import { 
   Scale, 
   Plus, 
@@ -66,7 +67,7 @@ export default function ComparePage() {
     const fetchVerdict = async () => {
       setIsVerdictLoading(true);
       try {
-        const res = await fetch('http://localhost:5000/api/products/compare', {
+        const res = await fetch(`${API_BASE_URL}/products/compare`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ productIds: compareList.map(p => p.id) })
@@ -90,8 +91,9 @@ export default function ComparePage() {
         const mostExpensive = sortedByPrice[sortedByPrice.length - 1];
         const diff = (mostExpensive.lowestPrice || 0) - (cheapest.lowestPrice || 0);
 
+        const expensiveTrust = mostExpensive.reviewTrustScore?.isScoreAvailable ? `${mostExpensive.reviewTrustScore.score}% Review Trust Score` : 'established brand ecosystem';
         const verdict = diff > 0 
-          ? `ShopWise Comparison Summary: For value-oriented shoppers, ${cheapest.name} offers the lowest entry price of ${formatINR(cheapest.lowestPrice)}, saving ${formatINR(diff)} compared to ${mostExpensive.name}. For buyers seeking higher specifications or brand ecosystem benefits, ${mostExpensive.name} delivers a verified ${mostExpensive.rating}★ rating and ${mostExpensive.reviewTrustScore?.score || 90}% Review Trust Score.`
+          ? `ShopWise Comparison Summary: For value-oriented shoppers, ${cheapest.name} offers the lowest entry price of ${formatINR(cheapest.lowestPrice)}, saving ${formatINR(diff)} compared to ${mostExpensive.name}. For buyers seeking higher specifications or brand ecosystem benefits, ${mostExpensive.name} delivers ${mostExpensive.rating ? `a verified ${mostExpensive.rating}★ rating and ` : ''}${expensiveTrust}.`
           : `ShopWise Comparison Summary: The compared products are similarly priced. Review Trust Score and Smart Value Score indicate ${cheapest.name} maintains a well-balanced profile for customer satisfaction.`;
         setAiVerdict(verdict);
         setIsVerdictLoading(false);

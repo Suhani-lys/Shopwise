@@ -35,6 +35,7 @@ export default function SearchResultsPage() {
     activeFiltersCount,
     sortBy, 
     setSortBy,
+    searchMeta,
     navigateToHome
   } = useShopwise();
 
@@ -83,17 +84,76 @@ export default function SearchResultsPage() {
             <p className="search-results-subtitle">Compare prices and find the best deal.</p>
           </div>
 
-          <div className="search-results-meta">
+          <div className="search-results-meta" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             {searchQuery ? (
-              <p className="search-query-badge">
+              <p className="search-query-badge" style={{ margin: 0 }}>
                 Showing results for &ldquo;<strong>{searchQuery}</strong>&rdquo; &bull;{' '}
                 <span className="results-count-number">{actualCount}</span> {actualCount === 1 ? 'product' : 'products'} found
               </p>
             ) : (
-              <p className="search-query-badge">
+              <p className="search-query-badge" style={{ margin: 0 }}>
                 <span className="results-count-number">{actualCount}</span> {actualCount === 1 ? 'product' : 'products'} found
                 {selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}
               </p>
+            )}
+
+            {searchMeta?.cached ? (
+              <span 
+                className="cache-status-pill"
+                title={`Cached search result (Refreshed ${searchMeta.cachedAt ? new Date(searchMeta.cachedAt).toLocaleTimeString() : 'recently'})`}
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--bg-card-subtle)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-color)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <span>⚡ Cached {searchMeta.cachedAt ? `(${new Date(searchMeta.cachedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})` : ''}</span>
+              </span>
+            ) : products.some(p => p.dataSource === 'live') ? (
+              <span 
+                className="live-status-pill"
+                title="Live Dynamic Multi-Store Search via Google Shopping India Aggregator"
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                  color: '#059669',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <span>🟢 Live Multi-Store</span>
+              </span>
+            ) : (
+              <span 
+                className="catalog-status-pill"
+                title="Showing products from ShopWise verified catalog"
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                  color: '#4f46e5',
+                  border: '1px solid rgba(99, 102, 241, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <span>🏪 Catalog</span>
+              </span>
             )}
           </div>
         </div>

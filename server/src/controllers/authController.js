@@ -49,6 +49,13 @@ async function register(req, res) {
       });
     }
 
+    if (password.length > 128) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password cannot exceed 128 characters.'
+      });
+    }
+
     // Confirm password matching
     if (confirmPassword !== undefined && password !== confirmPassword) {
       return res.status(400).json({
@@ -221,12 +228,10 @@ async function forgotPassword(req, res) {
     const cleanEmail = email.trim().toLowerCase();
     const user = await UserDAL.findByEmail(cleanEmail);
 
-    // In both cases return a helpful response for security (avoid enumeration)
+    // Unified message for both existing and non-existing accounts to prevent user enumeration
     res.json({
       success: true,
-      message: user 
-        ? `Password reset instructions have been sent to ${cleanEmail}. Please check your inbox.`
-        : `If an account exists for ${cleanEmail}, password reset instructions have been dispatched.`
+      message: 'If an account is registered with this email address, password reset instructions have been dispatched.'
     });
   } catch (error) {
     console.error('[Forgot Password Error]', error);
