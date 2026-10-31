@@ -87,6 +87,9 @@ if (config.NODE_ENV !== 'test') {
 // 7. Connect Persistent Database (MongoDB Atlas)
 connectDB();
 
+// Health check (used by load balancers and uptime monitors)
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 // 8. Global API Rate Limiting (180 requests/min/IP)
 app.use('/api', apiLimiter);
 

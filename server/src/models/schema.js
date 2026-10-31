@@ -379,6 +379,11 @@ const UserDAL = {
   find: async (query = {}) => {
     assertDBConnected('User List');
     return await MongoUser.find(query).lean();
+  },
+
+  delete: async (id) => {
+    assertDBConnected('User Deletion');
+    return await MongoUser.findOneAndDelete({ id }).lean();
   }
 };
 

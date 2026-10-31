@@ -235,6 +235,17 @@ class ProductSearchService {
   formatResponse(items = [], options = {}) {
     let results = [...items];
 
+    // Filter: Query relevance (discard completely irrelevant fuzzy/hallucinated matches)
+    if (options.query && options.query.trim()) {
+      const qTokens = options.query.trim().toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+      if (qTokens.length > 0) {
+        results = results.filter(p => {
+          const searchable = `${p.name || ''} ${p.brand || ''} ${p.category || ''} ${p.description || ''}`.toLowerCase();
+          return searchable.includes(options.query.trim().toLowerCase()) || qTokens.some(token => searchable.includes(token));
+        });
+      }
+    }
+
     // Filter: Category (handles subcategories like Mobiles, Laptops, Headphones -> Electronics)
     if (options.category && options.category !== 'All') {
       const targetCat = options.category.toLowerCase();

@@ -2,7 +2,10 @@
  * ShopWise Environment Configuration & Validation Module
  * Validates critical environment variables at startup and masks credentials for safe logging.
  */
+const path = require('path');
+// Attempt to load .env from current directory first, and server/.env as fallback
 require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 function maskMongoUri(uri) {
   if (!uri) return 'not_configured';
